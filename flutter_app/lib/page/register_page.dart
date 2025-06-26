@@ -1,46 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'connection.dart';
-import 'main.dart'; // To navigate to MyHomePage
-import 'register_page.dart';
+import 'login_page.dart';
+import 'connection.dart'; // contains `baseUrl`
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   String message = '';
 
-  Future<void> loginUser() async {
-    final url = Uri.parse('$baseUrl/users/login');
+  Future<void> registerUser() async {
+    if (passwordController.text != confirmPasswordController.text) {
+      setState(() {
+        message = 'Passwords do not match';
+      });
+      return;
+    }
+
+    final url = Uri.parse('$baseUrl/api/users/register');
     try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
+          'username': usernameController.text,
           'email': emailController.text,
           'password': passwordController.text,
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyHomePage(title: data['message']),
-          ),
-        );
+      if (response.statusCode == 201) {
+        setState(() {
+          message = 'Registration successful! Please log in.';
+        });
+
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        });
       } else {
         final error = jsonDecode(response.body);
         setState(() {
-          message = error['message'] ?? 'Login failed';
+          message = error['message'] ?? 'Registration failed';
         });
       }
     } catch (e) {
@@ -61,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF5A31F4), Color(0xFF3B0C99)],
+            colors: [Color(0xFF3B0C99), Color(0xFF5A31F4)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -83,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Welcome Back',
+                      'Create Account',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -91,8 +103,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    TextField(
+                      controller: usernameController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(
+                          Icons.person,
+                          color: Colors.deepPurple,
+                        ),
+                        labelText: 'Username',
+                        border: inputBorder,
+                        focusedBorder: inputBorder,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     TextField(
                       controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(
                           Icons.email,
@@ -100,15 +128,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         labelText: 'Email',
                         border: inputBorder,
-                        focusedBorder: inputBorder.copyWith(
-                          borderSide: const BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
+                        focusedBorder: inputBorder,
                       ),
-                      keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+
                     TextField(
                       controller: passwordController,
                       obscureText: true,
@@ -119,21 +143,31 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         labelText: 'Password',
                         border: inputBorder,
-                        focusedBorder: inputBorder.copyWith(
-                          borderSide: const BorderSide(
-                            color: Colors.deepPurple,
-                          ),
+                        focusedBorder: inputBorder,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextField(
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.deepPurple,
                         ),
+                        labelText: 'Confirm Password',
+                        border: inputBorder,
+                        focusedBorder: inputBorder,
                       ),
                     ),
                     const SizedBox(height: 30),
 
-                    // Gradient Login Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: loginUser,
+                        onPressed: registerUser,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
@@ -153,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.center,
                             constraints: const BoxConstraints(minHeight: 50),
                             child: const Text(
-                              'Login',
+                              'Register',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -170,8 +204,11 @@ class _LoginPageState extends State<LoginPage> {
                     if (message.isNotEmpty)
                       Text(
                         message,
-                        style: const TextStyle(
-                          color: Colors.redAccent,
+                        style: TextStyle(
+                          color:
+                              message.contains('success')
+                                  ? Colors.green
+                                  : Colors.redAccent,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -179,26 +216,25 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 24),
 
-                    // Register Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Don't have an account?",
+                          "Already have an account?",
                           style: TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const RegisterPage(),
+                                builder: (context) => const LoginPage(),
                               ),
                             );
                           },
                           child: const Text(
-                            "Register",
+                            "Login",
                             style: TextStyle(
                               color: Colors.deepPurple,
                               fontWeight: FontWeight.bold,

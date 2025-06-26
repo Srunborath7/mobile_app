@@ -1,58 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'login_page.dart';
-import 'connection.dart'; // contains `baseUrl`
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_page.dart';
+import 'register_page.dart'; // Your existing register page
+import '../connection/connection.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final usernameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
   String message = '';
 
-  Future<void> registerUser() async {
-    if (passwordController.text != confirmPasswordController.text) {
-      setState(() {
-        message = 'Passwords do not match';
-      });
-      return;
-    }
-
-    final url = Uri.parse('$baseUrl/users/register');
+  Future<void> loginUser() async {
+    final url = Uri.parse('$baseUrl/api/users/login');
     try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          'username': usernameController.text,
           'email': emailController.text,
           'password': passwordController.text,
         }),
       );
 
-      if (response.statusCode == 201) {
-        setState(() {
-          message = 'Registration successful! Please log in.';
-        });
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        final welcome = data['message'];
 
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('welcome', welcome);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(title: welcome, token: token),
+          ),
+        );
       } else {
         final error = jsonDecode(response.body);
         setState(() {
-          message = error['message'] ?? 'Registration failed';
+          message = error['message'] ?? 'Login failed';
         });
       }
     } catch (e) {
@@ -73,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF3B0C99), Color(0xFF5A31F4)],
+            colors: [Color(0xFF5A31F4), Color(0xFF3B0C99)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -95,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Create Account',
+                      'Welcome Back',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -103,24 +99,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    TextField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.person,
-                          color: Colors.deepPurple,
-                        ),
-                        labelText: 'Username',
-                        border: inputBorder,
-                        focusedBorder: inputBorder,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
                     TextField(
                       controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(
                           Icons.email,
@@ -128,11 +108,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         labelText: 'Email',
                         border: inputBorder,
-                        focusedBorder: inputBorder,
+                        focusedBorder: inputBorder.copyWith(
+                          borderSide: const BorderSide(
+                            color: Colors.deepPurple,
+                          ),
+                        ),
                       ),
+                      keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 16),
-
+                    const SizedBox(height: 20),
                     TextField(
                       controller: passwordController,
                       obscureText: true,
@@ -143,31 +127,19 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         labelText: 'Password',
                         border: inputBorder,
-                        focusedBorder: inputBorder,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    TextField(
-                      controller: confirmPasswordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.lock_outline,
-                          color: Colors.deepPurple,
+                        focusedBorder: inputBorder.copyWith(
+                          borderSide: const BorderSide(
+                            color: Colors.deepPurple,
+                          ),
                         ),
-                        labelText: 'Confirm Password',
-                        border: inputBorder,
-                        focusedBorder: inputBorder,
                       ),
                     ),
                     const SizedBox(height: 30),
-
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: registerUser,
+                        onPressed: loginUser,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
@@ -187,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             alignment: Alignment.center,
                             constraints: const BoxConstraints(minHeight: 50),
                             child: const Text(
-                              'Register',
+                              'Login',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -198,43 +170,36 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     if (message.isNotEmpty)
                       Text(
                         message,
-                        style: TextStyle(
-                          color:
-                              message.contains('success')
-                                  ? Colors.green
-                                  : Colors.redAccent,
+                        style: const TextStyle(
+                          color: Colors.redAccent,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
                       ),
-
                     const SizedBox(height: 24),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Already have an account?",
+                          "Don't have an account?",
                           style: TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacement(
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
+                                builder: (context) => const RegisterPage(),
                               ),
                             );
                           },
                           child: const Text(
-                            "Login",
+                            "Register",
                             style: TextStyle(
                               color: Colors.deepPurple,
                               fontWeight: FontWeight.bold,
