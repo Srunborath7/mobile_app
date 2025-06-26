@@ -24,20 +24,24 @@ This project is a complete mobile application using:
 
 ## 📁 Project Structure
 
+```plaintext
 project-root/
-├── flutter_app/ # Flutter frontend
-│ ├── lib/
-│ │ ├── connection.dart # API base URL
-│ │ └── login_page.dart # Login screen
-│ └── pubspec.yaml
 │
-├── node-rest-api/ # Node.js backend
-│ ├── index.js # API server entry point
-│ ├── db.js # MySQL connection config
-│ ├── .env # Environment variables
-│ └── package.json
+├── flutter_app/                  # 📱 Flutter frontend
+│   ├── lib/
+│   │   ├── connection.dart       # 🔗 API base URL
+│   │   └── login_page.dart       # 🔐 Login screen
+│   │
+│   └── pubspec.yaml              # 📦 Flutter dependencies & config
 │
-└── flutter_api.postman_collection.json # Postman collection
+├── node-rest-api/               # 🌐 Node.js backend
+│   ├── index.js                 # 🚀 API server entry point
+│   ├── db.js                    # 🗄️  MySQL connection config
+│   ├── .env                     # 🔐 Environment variables
+│   └── package.json             # 📦 Node project dependencies
+│
+└── flutter_api.postman_collection.json   # 📬 Postman collection for API testing
+```
 
 sql
 Copy
