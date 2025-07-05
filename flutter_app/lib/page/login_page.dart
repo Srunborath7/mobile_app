@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home_page.dart';
-import 'register_page.dart'; // Your existing register page
+import 'register_page.dart';
 import '../connection/connection.dart';
+import '../layout/PostLoginSplash.dart'; // Import the splash screen
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,10 +39,11 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('token', token);
         await prefs.setString('welcome', welcome);
 
+        // Show splash screen after login
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MyHomePage(title: welcome, token: token),
+            builder: (context) => PostLoginSplash(title: welcome, token: token),
           ),
         );
       } else {
@@ -83,10 +84,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               elevation: 8,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 36,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -102,17 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.email,
-                          color: Colors.deepPurple,
-                        ),
+                        prefixIcon: const Icon(Icons.email, color: Colors.deepPurple),
                         labelText: 'Email',
                         border: inputBorder,
-                        focusedBorder: inputBorder.copyWith(
-                          borderSide: const BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
+                        focusedBorder: inputBorder,
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
@@ -121,17 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                       controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.lock,
-                          color: Colors.deepPurple,
-                        ),
+                        prefixIcon: const Icon(Icons.lock, color: Colors.deepPurple),
                         labelText: 'Password',
                         border: inputBorder,
-                        focusedBorder: inputBorder.copyWith(
-                          borderSide: const BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
+                        focusedBorder: inputBorder,
                       ),
                     ),
                     const SizedBox(height: 30),

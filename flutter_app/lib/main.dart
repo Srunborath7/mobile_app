@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'page/login_page.dart';
-import 'page/home_page.dart';
+import 'page/home_page.dart';  // This is your MyHomePage with bottom tabs
 
 void main() {
   runApp(const MyApp());
@@ -25,9 +26,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedToken = prefs.getString('token');
-    String? storedWelcome = prefs.getString('welcome');
+    final prefs = await SharedPreferences.getInstance();
+    final storedToken = prefs.getString('token');
+    final storedWelcome = prefs.getString('welcome');
 
     if (storedToken != null && storedWelcome != null) {
       setState(() {
@@ -44,10 +45,9 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:
-          token != null && welcome != null
-              ? MyHomePage(title: welcome!, token: token!)
-              : const LoginPage(),
+      home: (token != null && welcome != null)
+          ? MyHomePage(title: welcome!, token: token!)  // Show your main home page after login
+          : const LoginPage(),                           // Show login if no token
     );
   }
 }

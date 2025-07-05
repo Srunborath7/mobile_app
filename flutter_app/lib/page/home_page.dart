@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../layout/navbar.dart';
+import '../layout/drawer_content.dart';
+import '../layout/buttombar.dart';
 import 'login_page.dart';
+
+// Simple dummy screens for tabs:
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Home Screen'));
+  }
+}
+
+class VideoScreen extends StatelessWidget {
+  const VideoScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Video Screen'));
+  }
+}
+
+class TrendingScreen extends StatelessWidget {
+  const TrendingScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Trending Screen'));
+  }
+}
+
+class SettingScreen extends StatelessWidget {
+  const SettingScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Settings Screen'));
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -13,61 +50,71 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _selectedIndex = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  final List<Widget> _pages = const [
+    HomeScreen(),
+    VideoScreen(),
+    TrendingScreen(),
+    SettingScreen(),
+  ];
 
-  Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     await prefs.remove('welcome');
 
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // Close drawer if open
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          // Profile photo circle avatar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: GestureDetector(
-              onTap: () {
-                // Optional: Open profile page or settings
-                // Navigator.push(...);
-              },
-              child: CircleAvatar(
-                radius: 18,
-                backgroundImage: NetworkImage(
-                  'https://i.pinimg.com/originals/94/9e/9a/949e9acf4df6075391f21248765bd8c3.jpg', // Replace with your user's profile photo URL
-                ),
-                backgroundColor: Colors.transparent,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: logout,
-            tooltip: 'Logout',
-          ),
-        ],
+      appBar: CustomNavbar(
+        screenTitle: _getScreenTitle(_selectedIndex),
+        username: widget.title,
+        onLogout: _logout,
       ),
-
-      body: Center(child: Text('Counter: $_counter')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        child: const Icon(Icons.add),
+      drawer: CustomDrawer(
+        onItemTapped: _onItemTapped,
+        selectedIndex: _selectedIndex,
+      ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
     );
+  }
+
+  String _getScreenTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'Videos';
+      case 2:
+        return 'Trending';
+      case 3:
+        return 'Settings';
+      default:
+        return 'App';
+    }
   }
 }
