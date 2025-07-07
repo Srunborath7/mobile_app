@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../page/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostLoginSplash extends StatefulWidget {
   final String token;
@@ -22,18 +23,26 @@ class _PostLoginSplashState extends State<PostLoginSplash> {
 
   Future<void> simulateLoading() async {
     for (int i = 1; i <= 100; i++) {
-      await Future.delayed(const Duration(milliseconds: 30)); // ~3 seconds total
+      await Future.delayed(const Duration(milliseconds: 30));
       setState(() => progress = i / 100);
     }
 
-    // After loading completes, navigate to home page
+    // Get role_id and optionally user_id from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final roleId = prefs.getInt('role_id') ?? 0;
+    final userId = prefs.getInt('user_id');
+
+    // Navigate to MyHomePage
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => MyHomePage(
-          title: widget.title,
-          token: widget.token,
-        ),
+        builder:
+            (context) => MyHomePage(
+              title: widget.title,
+              token: widget.token,
+              roleId: roleId,
+              userId: userId,
+            ),
       ),
     );
   }
@@ -47,7 +56,7 @@ class _PostLoginSplashState extends State<PostLoginSplash> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Preparing your dashboard...',
+              'Preparing your app...',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,

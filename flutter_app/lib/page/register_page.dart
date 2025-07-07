@@ -5,7 +5,9 @@ import 'login_page.dart';
 import '../connection/connection.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final bool canSelectRole;
+
+  const RegisterPage({super.key, this.canSelectRole = false});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -16,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  int? selectedRoleId;
   String message = '';
 
   Future<void> registerUser() async {
@@ -26,6 +29,15 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    if (widget.canSelectRole && selectedRoleId == null) {
+      setState(() {
+        message = 'Please select a role';
+      });
+      return;
+    }
+
+    final int roleIdToSend = widget.canSelectRole ? selectedRoleId! : 3; // default to User role id 3
+
     final url = Uri.parse('$baseUrl/api/users/register');
     try {
       final response = await http.post(
@@ -35,6 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
           'username': usernameController.text,
           'email': emailController.text,
           'password': passwordController.text,
+          'role_id': roleIdToSend,
         }),
       );
 
@@ -87,10 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               elevation: 8,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 36,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -133,6 +143,29 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 16),
 
+                    if (widget.canSelectRole)
+                      DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Select Role',
+                          border: inputBorder,
+                          focusedBorder: inputBorder,
+                          prefixIcon:
+                          const Icon(Icons.admin_panel_settings, color: Colors.deepPurple),
+                        ),
+                        value: selectedRoleId,
+                        items: const [
+                          DropdownMenuItem(value: 1, child: Text('Admin')),
+                          DropdownMenuItem(value: 2, child: Text('Editor')),
+                          DropdownMenuItem(value: 3, child: Text('User')),
+                        ],
+                        onChanged: (val) {
+                          setState(() {
+                            selectedRoleId = val;
+                          });
+                        },
+                      ),
+                    if (widget.canSelectRole) const SizedBox(height: 16),
+
                     TextField(
                       controller: passwordController,
                       obscureText: true,
@@ -163,6 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 30),
 
+                    // Register button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -199,16 +233,40 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
 
+                    if (widget.canSelectRole) const SizedBox(height: 12),
+
+                    // Back to Home button if role selector is visible
+                    if (widget.canSelectRole)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Back to Home',
+                            style: TextStyle(
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.deepPurple),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+
                     const SizedBox(height: 20),
 
                     if (message.isNotEmpty)
                       Text(
                         message,
                         style: TextStyle(
-                          color:
-                              message.contains('success')
-                                  ? Colors.green
-                                  : Colors.redAccent,
+                          color: message.contains('success') ? Colors.green : Colors.redAccent,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -228,9 +286,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
                             );
                           },
                           child: const Text(

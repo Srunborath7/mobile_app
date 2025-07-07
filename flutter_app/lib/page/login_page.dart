@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
 import '../connection/connection.dart';
-import '../layout/PostLoginSplash.dart'; // Import the splash screen
+import '../layout/PostLoginSplash.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,12 +34,15 @@ class _LoginPageState extends State<LoginPage> {
         final data = jsonDecode(response.body);
         final token = data['token'];
         final welcome = data['message'];
+        final roleId = data['role_id'];
+        final userId = data['user_id'];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('welcome', welcome);
+        await prefs.setInt('role_id', roleId);
+        await prefs.setInt('user_id', userId);
 
-        // Show splash screen after login
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -84,7 +87,10 @@ class _LoginPageState extends State<LoginPage> {
               ),
               elevation: 8,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 36,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -100,7 +106,10 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email, color: Colors.deepPurple),
+                        prefixIcon: const Icon(
+                          Icons.email,
+                          color: Colors.deepPurple,
+                        ),
                         labelText: 'Email',
                         border: inputBorder,
                         focusedBorder: inputBorder,
@@ -112,7 +121,10 @@ class _LoginPageState extends State<LoginPage> {
                       controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock, color: Colors.deepPurple),
+                        prefixIcon: const Icon(
+                          Icons.lock,
+                          color: Colors.deepPurple,
+                        ),
                         labelText: 'Password',
                         border: inputBorder,
                         focusedBorder: inputBorder,

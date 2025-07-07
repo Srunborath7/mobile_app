@@ -6,7 +6,6 @@ import '../layout/drawer_content.dart';
 import '../layout/buttombar.dart';
 import 'login_page.dart';
 
-// Simple dummy screens for tabs:
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
@@ -39,11 +38,27 @@ class SettingScreen extends StatelessWidget {
   }
 }
 
+class AdminPanel extends StatelessWidget {
+  const AdminPanel({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Admin Panel Screen'));
+  }
+}
+
 class MyHomePage extends StatefulWidget {
   final String title;
   final String token;
+  final int roleId;
+  final int? userId;
 
-  const MyHomePage({super.key, required this.title, required this.token});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.token,
+    required this.roleId,
+    this.userId,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -52,22 +67,37 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    VideoScreen(),
-    TrendingScreen(),
-    SettingScreen(),
-  ];
+  List<Widget> _pages() {
+    final pages = [
+      const HomeScreen(),
+      const VideoScreen(),
+      const TrendingScreen(),
+      const SettingScreen(),
+    ];
+
+    if (widget.roleId == 1) {
+      pages.add(const AdminPanel());
+    }
+
+    return pages;
+  }
+
+  String _getScreenTitle(int index) {
+    final titles = ['Home', 'Videos', 'Trending', 'Settings'];
+    if (widget.roleId == 1) {
+      titles.add('Admin Panel');
+    }
+    return titles[index];
+  }
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('welcome');
+    await prefs.clear();
 
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -75,23 +105,26 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _selectedIndex = index;
     });
-    // Close drawer if open
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final pages = _pages();
+
     return Scaffold(
       appBar: CustomNavbar(
         screenTitle: _getScreenTitle(_selectedIndex),
         username: widget.title,
+        userIs: widget.roleId,
         onLogout: _logout,
       ),
       drawer: CustomDrawer(
         onItemTapped: _onItemTapped,
         selectedIndex: _selectedIndex,
+        roleId: widget.roleId,
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -101,20 +134,5 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
     );
-  }
-
-  String _getScreenTitle(int index) {
-    switch (index) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Videos';
-      case 2:
-        return 'Trending';
-      case 3:
-        return 'Settings';
-      default:
-        return 'App';
-    }
   }
 }
