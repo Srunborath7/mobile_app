@@ -15,10 +15,10 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final drawerItems = [
-      {'icon': Icons.home, 'title': 'Home'},
-      {'icon': Icons.video_collection, 'title': 'Videos'},
-      {'icon': Icons.trending_up, 'title': 'Trending'},
-      {'icon': Icons.settings, 'title': 'Settings'},
+      {'icon': Icons.sports_soccer, 'title': 'Sport News'},
+      {'icon': Icons.computer, 'title': 'Technology News'},
+      {'icon': Icons.public, 'title': 'World News'},
+      {'icon': Icons.movie, 'title': 'Entertainment'},
     ];
 
     if (roleId == 1) {
@@ -28,7 +28,7 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
+          const DrawerHeader(
             decoration: BoxDecoration(color: Colors.deepPurple),
             child: Center(
               child: Text(
@@ -47,7 +47,7 @@ class CustomDrawer extends StatelessWidget {
               selectedTileColor: Colors.deepPurple.shade100,
               onTap: () {
                 Navigator.pop(context); // Close drawer
-                onItemTapped(idx);      // Notify parent about new index
+                onItemTapped(idx);      // Notify parent
               },
             );
           }).toList(),
@@ -56,6 +56,7 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   final int roleId;
@@ -70,12 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   final _pages = [
-    Center(child: Text('Home Screen')),
-    Center(child: Text('Video Screen')),
-    Center(child: Text('Trending Screen')),
-    Center(child: Text('Settings Screen')),
-    Center(child: Text('Admin Panel Screen')), // Only for roleId == 1
+    Center(child: Text('Sport News Screen')),
+    Center(child: Text('Technology News Screen')),
+    Center(child: Text('World News Screen')),
+    Center(child: Text('Entertainment Screen')),
+    Center(child: Text('Admin Panel Screen')),
   ];
+
 
   void _onItemTapped(int index) {
     final maxIndex = widget.roleId == 1 ? 4 : 3; // Max valid index depending on role
