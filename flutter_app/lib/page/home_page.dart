@@ -14,6 +14,7 @@ import '../news_category/finance_news_screen.dart';
 import '../news_category/health_news_screen.dart';
 import '../news_category/international_news_screen.dart';
 import '../news_category/political_news_screen.dart';
+import 'detail_homepage_new/article1.dart';
 
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
@@ -461,12 +462,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
             const SizedBox(height: 20),
 
+            ///body article in homepage news
+
             // Article Box 1
-            _articleBox(
-              title: 'Latest Sports Update!',
-              summary: 'Our local team made headlines after a stunning comeback...',
-              imageUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1',
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Article1Page()),
+                );
+              },
+              child: _articleBox(
+                title: 'Latest Sports Update!',
+                summary: 'Our local team made headlines after a stunning comeback...',
+                imageUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1',
+              ),
             ),
+
 
             // Article Box 2
             _articleBox(
@@ -486,7 +498,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _articleBox(
               title: 'education Revolution',
               summary: 'New AI system detects early signs of disease...',
-              imageUrl: 'https://images.unsplash.com/photo-1588776814546-ec7e4c85f180',
+              imagePath: 'assets/image/n1.png',
             ),
 
             // Article Box 5
@@ -511,8 +523,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     }).toList();
-
-
   }
 
 
