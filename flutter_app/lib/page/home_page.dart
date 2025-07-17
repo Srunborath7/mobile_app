@@ -16,6 +16,12 @@ import '../news_category/international_news_screen.dart';
 import '../news_category/political_news_screen.dart';
 import 'detail_homepage_new/article1.dart';
 
+import '../connection/connection.dart';
+
+import '../models/article.dart';
+import '../services/article_service.dart';
+
+
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -319,6 +325,25 @@ class PoliticalNewsScreen extends StatelessWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  late Future<List<Article>> _futureArticles;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureArticles = ArticleService.fetchArticles();
+    _futureArticles.then((value) {
+      print('Fetched ${value.length} articles in initState');
+    }).catchError((error) {
+      print('Error fetching articles in initState: $error');
+    });
+  }
+
+  String _buildFullImageUrl(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) return '';
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return '$baseUrl/$imageUrl';
+  }
+
 
   Widget _categoryButton(String title, Widget page) {
     return ElevatedButton(
@@ -340,13 +365,24 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget imageWidget;
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
+      final fullUrl = _buildFullImageUrl(imageUrl);
+      print('Loading image from: $fullUrl'); // Debug print
+
       imageWidget = ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
         child: Image.network(
-          imageUrl,
+          fullUrl,
           height: 180,
           width: double.infinity,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            print('Failed to load image: $error');
+            return Container(
+              height: 180,
+              color: Colors.grey[300],
+              child: const Icon(Icons.broken_image, size: 60, color: Colors.grey),
+            );
+          },
         ),
       );
     } else if (imagePath != null && imagePath.isNotEmpty) {
@@ -403,34 +439,49 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildArticlesFromAPI() {
+    return FutureBuilder<List<Article>>(
+      future: _futureArticles,
+      builder: (context, snapshot) {
+        print('FutureBuilder state: ${snapshot.connectionState}');
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          print('Waiting for articles...');
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          print('Error in FutureBuilder: ${snapshot.error}');
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          print('No articles found or empty data');
+          return const Center(child: Text('No articles found'));
+        } else {
+          final articles = snapshot.data!;
+          print('Building UI with ${articles.length} articles');
+          return Column(
+            children: articles.map((article) {
+              print('Article: ${article.title}');
+              return _articleBox(
+                title: article.title,
+                summary: article.summary,
+                imageUrl: article.imageUrl,
+              );
+            }).toList(),
+          );
+        }
+      },
+    );
+  }
 
 
   List<Widget> _pages() {
-    final List<Widget> basePages = [
-      const Center(child: Text('Home Content')),
-      const Center(child: Text('Videos Content')),
-      const Center(child: Text('Trending Content')),
-      const Center(child: Text('Settings Content')),
-    ];
-
-    if (widget.roleId == 1) {
-      basePages.add(const Center(child: Text('Admin Panel Content')));
-    }
-
-    return basePages.map((page) {
-      return SingleChildScrollView(
+    final basePages = [
+      SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Video carousel at top
-            SizedBox(
-              height: 250,
-              child: const SimpleVideoCarousel(),
-            ),
+            SizedBox(height: 250, child: const SimpleVideoCarousel()),
 
             const SizedBox(height: 15),
 
-            // Category buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -462,71 +513,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
             const SizedBox(height: 20),
 
-            ///body article in homepage news
-
-            // Article Box 1
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Article1Page()),
-                );
-              },
-              child: _articleBox(
-                title: 'Latest Sports Update!',
-                summary: 'Our local team made headlines after a stunning comeback...',
-                imageUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1',
-              ),
-            ),
-
-
-            // Article Box 2
-            _articleBox(
-              title: 'Big Tech Breakthrough',
-              summary: 'A major announcement in the tech world just happened...',
-              imageUrl: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f',
-            ),
-
-            // Article Box 3
-            _articleBox(
-              title: 'Healthcare Revolution',
-              summary: 'New AI system detects early signs of disease...',
-              imagePath: 'assets/image/pf.jpg',
-            ),
-
-            // Article Box 4
-            _articleBox(
-              title: 'education Revolution',
-              summary: 'New AI system detects early signs of disease...',
-              imagePath: 'assets/image/n1.png',
-            ),
-
-            // Article Box 5
-            _articleBox(
-              title: 'game Revolution',
-              summary: 'New AI system detects early signs of disease...',
-              imageUrl: 'https://images.unsplash.com/photo-1588776814546-ec7e4c85f180',
-            ),
-
-            // Article Box 6
-            _articleBox(
-              title: 'entertainment Revolution',
-              summary: 'New AI system detects early signs of disease...',
-              imageUrl: 'https://images.unsplash.com/photo-1588776814546-ec7e4c85f180',
-            ),
+            _buildArticlesFromAPI(),
 
             const SizedBox(height: 20),
-
-            // Bottom content
-            page,
           ],
         ),
-      );
-    }).toList();
+      ),
+      const Center(child: Text('Videos Content')),
+      const Center(child: Text('Trending Content')),
+      const Center(child: Text('Settings Content')),
+    ];
+
+    if (widget.roleId == 1) {
+      basePages.add(const Center(child: Text('Admin Panel Content')));
+    }
+
+    return basePages;
   }
-
-
-
 
   String _getScreenTitle(int index) {
     final titles = ['Home', 'Videos', 'Trending', 'Settings'];
@@ -569,3 +572,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
