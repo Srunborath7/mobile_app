@@ -1,28 +1,25 @@
+// lib/services/article_detail_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/article_detail.dart';
 import '../connection/connection.dart';
 
-class ArticleService {
-  static Future<ArticleDetail> fetchArticleById(int id) async {
-    final url = '$baseUrl/api/articles/$id'; // Adjust path if needed
-    print('Fetching article by id from: $url');
-
+class ArticleDetailService {
+  static Future<ArticleDetail> fetchArticleDetailById(int id) async {
+    final url = '$baseUrl/api/articles/$id';  // Make sure this matches your backend route
     final response = await http.get(Uri.parse(url));
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
 
-      // Optional: If your backend wraps it like { "article": { ... } }
+      // If your API response wraps the article inside a key 'article', extract it, else use decoded directly
       if (decoded is Map && decoded.containsKey('article')) {
         return ArticleDetail.fromJson(decoded['article']);
       }
 
       return ArticleDetail.fromJson(decoded);
     } else {
-      throw Exception('Failed to load article with id $id');
+      throw Exception('Failed to load article detail with id $id');
     }
   }
 }

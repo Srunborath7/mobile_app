@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../layout/bottombar.dart';  // Adjust path based on your project structure
 
-import 'login_page.dart'; // Your existing login page import
+import 'login_page.dart';
 import 'edit_profile_page.dart';
-import 'video_slideshow.dart';  // Adjust path as needed
+import 'video_slideshow.dart';
 
 import '../news_category/sports_news_screen.dart';
 import '../news_category/technology_news_screen.dart';
@@ -14,14 +14,12 @@ import '../news_category/finance_news_screen.dart';
 import '../news_category/health_news_screen.dart';
 import '../news_category/international_news_screen.dart';
 import '../news_category/political_news_screen.dart';
-import 'detail_homepage_new/article1.dart';
 
 import '../connection/connection.dart';
 
 import '../models/article.dart';
 import '../services/article_service.dart';
-
-
+import 'detail_article/article_detail_page.dart';
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -107,12 +105,12 @@ class CustomDrawer extends StatelessWidget {
   final int roleId;
 
   const CustomDrawer({
-    Key? key,
+    super.key,
     required this.username,
     required this.email,
     required this.profileImageUrl,
     required this.roleId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,16 +228,15 @@ class CustomDrawer extends StatelessWidget {
   }
 }
 
-// Minimal implementation of CustomBottomNavigationBar
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
   const CustomBottomNavigationBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -279,48 +276,46 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
-
 class TechnologyNewsScreen extends StatelessWidget {
-  const TechnologyNewsScreen({Key? key}) : super(key: key);
+  const TechnologyNewsScreen({super.key});
   @override
   Widget build(BuildContext context) => Center(child: Text('Technology News'));
-} /// delete class on homepage and then write this class into their own screen like (technology_screen, health_screen.....)
+}
 
 class HealthNewsScreen extends StatelessWidget {
-  const HealthNewsScreen({Key? key}) : super(key: key);
+  const HealthNewsScreen({super.key});
   @override
   Widget build(BuildContext context) => Center(child: Text('Health News'));
 }
 
 class FinanceNewsScreen extends StatelessWidget {
-  const FinanceNewsScreen({Key? key}) : super(key: key);
+  const FinanceNewsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
+  Widget build(BuildContext context) => Center(child: Text('Finance News'));
 }
 
 class InternationalNewsScreen extends StatelessWidget {
-  const InternationalNewsScreen({Key? key}) : super(key: key);
+  const InternationalNewsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
+  Widget build(BuildContext context) => Center(child: Text('International News'));
 }
 
 class EducationNewsScreen extends StatelessWidget {
-  const EducationNewsScreen({Key? key}) : super(key: key);
+  const EducationNewsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
+  Widget build(BuildContext context) => Center(child: Text('Education News'));
 }
 
 class EntertainmentNewsScreen extends StatelessWidget {
-  const EntertainmentNewsScreen({Key? key}) : super(key: key);
+  const EntertainmentNewsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
+  Widget build(BuildContext context) => Center(child: Text('Entertainment News'));
 }
 
 class PoliticalNewsScreen extends StatelessWidget {
-  const PoliticalNewsScreen({Key? key}) : super(key: key);
+  const PoliticalNewsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
+  Widget build(BuildContext context) => Center(child: Text('Political News'));
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -344,7 +339,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return '$baseUrl/$imageUrl';
   }
 
-
   Widget _categoryButton(String title, Widget page) {
     return ElevatedButton(
       onPressed: () {
@@ -361,12 +355,13 @@ class _MyHomePageState extends State<MyHomePage> {
     required String summary,
     String? imageUrl,
     String? imagePath,
+    VoidCallback? onTap,
   }) {
     Widget imageWidget;
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final fullUrl = _buildFullImageUrl(imageUrl);
-      print('Loading image from: $fullUrl'); // Debug print
+      print('Loading image from: $fullUrl');
 
       imageWidget = ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -407,33 +402,36 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            imageWidget,
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    summary,
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              imageWidget,
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title.isNotEmpty ? title : 'No Title',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      summary.isNotEmpty ? summary : 'No Summary',
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -463,6 +461,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: article.title,
                 summary: article.summary,
                 imageUrl: article.imageUrl,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ArticleDetailPage(articleId: article.id), // pass article id only
+                    ),
+                  );
+                },
               );
             }).toList(),
           );
@@ -471,7 +477,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
   List<Widget> _pages() {
     final basePages = [
       SingleChildScrollView(
@@ -479,9 +484,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 250, child: const SimpleVideoCarousel()),
-
             const SizedBox(height: 15),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -510,11 +513,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             _buildArticlesFromAPI(),
-
             const SizedBox(height: 20),
           ],
         ),
@@ -572,4 +572,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

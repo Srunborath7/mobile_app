@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SportsNewsScreen extends StatelessWidget {
-  const SportsNewsScreen({Key? key}) : super(key: key);
+  const SportsNewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

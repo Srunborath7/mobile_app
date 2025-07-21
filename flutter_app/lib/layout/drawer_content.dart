@@ -50,7 +50,7 @@ class CustomDrawer extends StatelessWidget {
                 onItemTapped(idx);      // Notify parent
               },
             );
-          }).toList(),
+          }),
         ],
       ),
     );

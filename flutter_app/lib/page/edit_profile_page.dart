@@ -7,11 +7,11 @@ class EditProfilePage extends StatefulWidget {
   final String profileImageUrl;
 
   const EditProfilePage({
-    Key? key,
+    super.key,
     required this.username,
     required this.email,
     required this.profileImageUrl,
-  }) : super(key: key);
+  });
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();

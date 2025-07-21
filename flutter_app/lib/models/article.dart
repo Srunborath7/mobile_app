@@ -1,9 +1,11 @@
 class Article {
+  final int id;
   final String title;
   final String summary;
   final String imageUrl;
 
   Article({
+    required this.id,
     required this.title,
     required this.summary,
     required this.imageUrl,
@@ -11,9 +13,10 @@ class Article {
 
   factory Article.fromJson(Map<String, dynamic> json) {
     return Article(
-      title: json['title'] ?? 'No title',
+      id: json['id'],              // Make sure this is here
+      title: json['title'] ?? '',
       summary: json['summary'] ?? '',
-      imageUrl: json['image_url'] ?? '',
+      imageUrl: json['image_url'] ?? '',  // or imageUrl based on API response
     );
   }
 }

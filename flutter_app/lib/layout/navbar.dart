@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../page/register_page.dart';
 
 // Custom Navbar (unchanged)
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
