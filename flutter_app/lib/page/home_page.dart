@@ -19,6 +19,7 @@ import '../connection/connection.dart';
 
 import '../models/article.dart';
 import '../services/article_service.dart';
+import '../services/article_detail_service.dart';
 import 'detail_article/article_detail_page.dart';
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
@@ -462,6 +463,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 summary: article.summary,
                 imageUrl: article.imageUrl,
                 onTap: () {
+                  print('🟢 Tapped article ID: ${article.id}');
                   Navigator.push(
                     context,
                     MaterialPageRoute(

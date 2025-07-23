@@ -26,7 +26,7 @@ class _SimpleVideoCarouselState extends State<SimpleVideoCarousel> {
       return YoutubePlayerController(
         initialVideoId: videoId,
         flags: const YoutubePlayerFlags(
-          autoPlay: true,
+          autoPlay: false,
           mute: true,
           loop: true,
         ),

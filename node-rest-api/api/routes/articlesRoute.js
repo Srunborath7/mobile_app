@@ -15,6 +15,22 @@ router.get('/', (req, res) => {
   });
 });
 
+// GET article by ID
+router.get('/:id', (req, res) => {
+  const articleId = req.params.id;
+  db.query('SELECT * FROM articles WHERE id = ?', [articleId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Database query error' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+    res.json(results[0]);
+  });
+});
+
+
 // =============================
 // 2. GET article detail by ID (for detail page)
 // =============================

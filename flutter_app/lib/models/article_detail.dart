@@ -1,25 +1,28 @@
 class ArticleDetail {
   final int id;
-  final String title;
+  final int articleId;
   final String content;
   final String author;
-  final String? fullImage;
+  final String fullImage;
 
   ArticleDetail({
     required this.id,
-    required this.title,
+    required this.articleId,
     required this.content,
     required this.author,
-    this.fullImage,
+    required this.fullImage,
   });
+
 
   factory ArticleDetail.fromJson(Map<String, dynamic> json) {
     return ArticleDetail(
-      id: json['id'],
-      title: json['title'],
-      content: json['content'],
-      author: json['author'],
-      fullImage: json['fullImage'], // adapt if your API uses another key
+      id: json['id'] ?? 0,
+      articleId: json['article_id'] ?? 0,
+      content: json['content'] ?? '',
+      author: json['author'] ?? '',
+      fullImage: json['full_image'] ?? '',
     );
   }
+
 }
+

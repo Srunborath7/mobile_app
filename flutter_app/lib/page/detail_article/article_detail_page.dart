@@ -31,6 +31,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         isLoading = false;
       });
     } catch (e) {
+      print('❌ Error fetching article: $e');
       setState(() {
         isLoading = false;
       });
