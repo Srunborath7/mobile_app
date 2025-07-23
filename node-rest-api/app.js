@@ -1,34 +1,57 @@
 const express = require('express');
-const app = express();
-const userRoutes = require('./api/routes/usersRoute');
-const articleRoutes = require('./api/routes/articlesRoute'); // ✅ Add this line
-
-
-
-require('dotenv').config();
 const cors = require('cors');
-app.use(cors({
-  origin: '*', // or set specific IP like 'http://localhost:3000'
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+require('dotenv').config();
+
 const {
   createUsersTable,
   createRoleTable,
   insertDefaultRoles,
-  insertAdmin
+  insertAdmin,
 } = require('./api/models/userModel');
 
-app.use(express.json());
+const {
+  createArticlesTable,
+  createArticleDetailTable,
+  insertDefaultArticles,
+  insertDefaultArticleDetails,
+} = require('./api/models/articleModel');
 
-createRoleTable();
-createUsersTable();
-insertDefaultRoles();
-insertAdmin();
+const userRoutes = require('./api/routes/usersRoute');
+const articleRoutes = require('./api/routes/articlesRoute');
 
-app.use('/api/users', userRoutes);
-app.use('/api/articles', articleRoutes);
+async function setupDatabase() {
+  // 🧱 Setup users and roles
+  await createRoleTable();
+  await createUsersTable();
+  await insertDefaultRoles();
+  await insertAdmin();
 
+  // 📰 Setup articles and article_detail
+  await createArticlesTable();
+  await createArticleDetailTable();
+  await insertDefaultArticles(); // optional seed data
+  await insertDefaultArticleDetails();
 
+  console.log('✅ All tables and seed data are ready.');
+}
 
-module.exports = app;
+async function createApp() {
+  const app = express();
+
+  app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
+
+  app.use(express.json());
+
+  await setupDatabase(); // ⬅️ Database is fully initialized here
+
+  app.use('/api/users', userRoutes);
+  app.use('/api/articles', articleRoutes);
+
+  return app;
+}
+
+module.exports = createApp;
