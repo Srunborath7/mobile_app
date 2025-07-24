@@ -19,8 +19,13 @@ import '../connection/connection.dart';
 
 import '../models/article.dart';
 import '../services/article_service.dart';
-import '../services/article_detail_service.dart';
 import 'detail_article/article_detail_page.dart';
+
+import '../video_page/video_article_page.dart';
+import '../models/video_article.dart';
+
+import '../trending_page/trending_article_page.dart';
+
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -232,24 +237,28 @@ class CustomDrawer extends StatelessWidget {
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final int roleId;
 
   const CustomBottomNavigationBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    required this.roleId,
   });
 
   @override
   Widget build(BuildContext context) {
     final items = [
-      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      BottomNavigationBarItem(icon: Icon(Icons.video_collection), label: 'Videos'),
-      BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Trending'),
-      BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+      const BottomNavigationBarItem(icon: Icon(Icons.video_collection), label: 'Videos'),
+      const BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Trending'),
+      const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
     ];
-    if (currentIndex == 4 || items.length == 4) {
-      items.add(BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'));
+
+    if (roleId == 1) {
+      items.add(const BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'));
     }
+
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
@@ -521,8 +530,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      const Center(child: Text('Videos Content')),
-      const Center(child: Text('Trending Content')),
+
+      /// Videos page (new)
+      const VideoArticlePage(),
+
+      const TrendingArticlePage(),
       const Center(child: Text('Settings Content')),
     ];
 
@@ -570,6 +582,8 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        roleId: widget.roleId,
+
       ),
     );
   }
