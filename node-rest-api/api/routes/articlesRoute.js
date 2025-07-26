@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db'); // Adjust path as needed
+const db = require('../database/db');
 
 // =============================
 // 1. GET all articles (for homepage)
@@ -74,8 +74,6 @@ router.post('/', (req, res) => {
   });
 });
 
-// =============================
-// GET /api/articles/detail (list *all* details — optional)
 // Get all article_detail records
 router.get('/detail', (req, res) => {
   db.query('SELECT * FROM article_detail', (err, results) => {

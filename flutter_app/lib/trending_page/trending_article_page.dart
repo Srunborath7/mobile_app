@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/trending_article.dart';
 import '../services/trending_article_service.dart';
 import '../connection/connection.dart';
-import './trending_article_detail_page.dart'; // adjust path
+import './trending_article_detail_page.dart';
 
 
 class TrendingArticlePage extends StatefulWidget {
@@ -75,7 +75,7 @@ class _TrendingArticlePageState extends State<TrendingArticlePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trending Articles')),
+      appBar: AppBar(title: const Text('Trending Articlesfjsfljaskfaskfja')),
       body: FutureBuilder<List<TrendingArticle>>(
         future: _futureTrending,
         builder: (context, snapshot) {

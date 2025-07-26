@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Custom Navbar (unchanged)
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
   final String username;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/trending_article.dart';
 import '../models/trending_article_detail.dart';
 import '../services/trending_article_detail_service.dart';
 import '../connection/connection.dart';

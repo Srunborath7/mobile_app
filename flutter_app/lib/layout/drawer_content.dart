@@ -47,7 +47,7 @@ class CustomDrawer extends StatelessWidget {
               selectedTileColor: Colors.deepPurple.shade100,
               onTap: () {
                 Navigator.pop(context); // Close drawer
-                onItemTapped(idx);      // Notify parent
+                onItemTapped(idx);
               },
             );
           }),

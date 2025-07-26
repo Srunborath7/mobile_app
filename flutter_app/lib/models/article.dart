@@ -13,10 +13,10 @@ class Article {
 
   factory Article.fromJson(Map<String, dynamic> json) {
     return Article(
-      id: json['id'],              // Make sure this is here
+      id: json['id'],
       title: json['title'] ?? '',
       summary: json['summary'] ?? '',
-      imageUrl: json['image_url'] ?? '',  // or imageUrl based on API response
+      imageUrl: json['image_url'] ?? '',
     );
   }
 }

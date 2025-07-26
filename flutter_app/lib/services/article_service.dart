@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/article.dart'; // <-- Add this import to support Article list
+import '../models/article.dart';
 import '../models/article_detail.dart';
 import '../connection/connection.dart';
 
@@ -18,7 +18,7 @@ class ArticleService {
       final decoded = json.decode(response.body);
       print('Decoded JSON: $decoded');
 
-      // Optional: If your backend wraps it like { "article": { ... } }
+
       if (decoded is Map && decoded.containsKey('article')) {
         return ArticleDetail.fromJson(decoded['article']);
       }
@@ -29,7 +29,6 @@ class ArticleService {
     }
   }
 
-  /// ✅ Add this: Fetch all articles
   static Future<List<Article>> fetchArticles() async {
     final url = '$baseUrl/api/articles';
     print('Fetching all articles from: $url');
@@ -41,14 +40,12 @@ class ArticleService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
 
-      // If backend returns { articles: [...] }
       if (decoded is Map && decoded.containsKey('articles')) {
         return (decoded['articles'] as List)
             .map((json) => Article.fromJson(json))
             .toList();
       }
 
-      // Or backend returns just a list: [ {...}, {...} ]
       if (decoded is List) {
         return decoded.map((json) => Article.fromJson(json)).toList();
       }

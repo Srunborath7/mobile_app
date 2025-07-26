@@ -48,7 +48,7 @@ async function setupDatabase() {
   await createVideoArticlesTable();
   await insertDefaultVideoArticles();
 
-
+  // setup trending_articles table and insert data
   await createTrendingArticlesTable();
   await createTrendingArticleDetailsTable();
  
@@ -67,7 +67,7 @@ async function createApp() {
 
   app.use(express.json());
 
-  await setupDatabase(); // ⬅️ Database is fully initialized here
+  await setupDatabase(); 
 
   app.use('/api/users', userRoutes);
   app.use('/api/articles', articleRoutes);

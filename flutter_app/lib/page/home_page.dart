@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../layout/bottombar.dart';  // Adjust path based on your project structure
+import '../connection/connection.dart';
 
 import 'login_page.dart';
-import 'edit_profile_page.dart';
 import 'video_slideshow.dart';
 
 import '../news_category/sports_news_screen.dart';
@@ -15,14 +14,13 @@ import '../news_category/health_news_screen.dart';
 import '../news_category/international_news_screen.dart';
 import '../news_category/political_news_screen.dart';
 
-import '../connection/connection.dart';
+
 
 import '../models/article.dart';
 import '../services/article_service.dart';
 import 'detail_article/article_detail_page.dart';
 
 import '../video_page/video_article_page.dart';
-import '../models/video_article.dart';
 
 import '../trending_page/trending_article_page.dart';
 

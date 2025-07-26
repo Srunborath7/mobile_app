@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/trending_article.dart';
-import '../connection/connection.dart'; // for baseUrl
+import '../connection/connection.dart';  // to use with ip_address:3000
 
 class TrendingArticleService {
   static Future<List<TrendingArticle>> fetchTrendingArticles() async {

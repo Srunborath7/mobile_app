@@ -16,7 +16,7 @@ class TrendingArticle {
       id: json['id'] ?? 0,
       title: json['title'] ?? 'No Title',
       summary: json['summary'] ?? 'No Summary',
-      imageUrl: json['image_url'] ?? '',  // Important: check key name
+      imageUrl: json['image_url'] ?? '',
     );
   }
 }

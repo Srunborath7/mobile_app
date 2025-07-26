@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/article_detail.dart'; // use the correct model
-import '../../connection/connection.dart'; // for baseUrl
+import '../../models/article_detail.dart';
+import '../../connection/connection.dart';
 import '../../services/article_detail_service.dart';
 
 class ArticleDetailPage extends StatefulWidget {

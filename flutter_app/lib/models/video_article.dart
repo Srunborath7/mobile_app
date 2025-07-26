@@ -21,7 +21,7 @@ class VideoArticle {
       title: json['title'],
       description: json['description'],
       thumbnailUrl: json['thumbnail_url'],
-      videoUrl: json['video_url'], // YouTube link from MySQL
+      videoUrl: json['video_url'],              // YouTube link from MySQL
     );
   }
 }

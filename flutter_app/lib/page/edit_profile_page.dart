@@ -38,7 +38,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       const SnackBar(content: Text('Profile updated successfully!')),
     );
 
-    Navigator.pop(context); // Go back to the previous screen
+    Navigator.pop(context);
   }
 
   @override
