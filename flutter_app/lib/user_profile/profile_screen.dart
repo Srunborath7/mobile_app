@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../services/user_profile_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -35,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _addressController;
   late TextEditingController _phoneController;
   late TextEditingController _dobController;
-  late TextEditingController _emailController; // <-- Added controller for email
+  late TextEditingController _emailController;
 
   @override
   void initState() {
@@ -44,12 +43,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _addressController = TextEditingController();
     _phoneController = TextEditingController();
     _dobController = TextEditingController();
-    _emailController = TextEditingController(); // Init email controller
+    _emailController = TextEditingController();
 
+    _loadFromLocal();
     _fetchProfileData();
   }
 
-  void _fetchProfileData() async {
+  Future<void> _loadFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullNameController.text = prefs.getString('full_name') ?? '';
+      _addressController.text = prefs.getString('address') ?? '';
+      _emailController.text = prefs.getString('email') ?? '';
+      _phoneController.text = prefs.getString('phone_number') ?? '';
+      _dobController.text = prefs.getString('date_of_birth') ?? '';
+    });
+  }
+
+  Future<void> _saveToLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('full_name', _fullNameController.text);
+    await prefs.setString('address', _addressController.text);
+    await prefs.setString('email', _emailController.text);
+    await prefs.setString('phone_number', _phoneController.text);
+    await prefs.setString('date_of_birth', _dobController.text);
+  }
+
+  Future<void> _fetchProfileData() async {
     final profile = await UserProfileService.getUserProfile(widget.userId);
     if (profile != null) {
       setState(() {
@@ -57,10 +77,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _addressController.text = profile['address'] ?? '';
         _phoneController.text = profile['phone_number'] ?? '';
         _dobController.text = profile['date_of_birth'] ?? '';
-        _emailController.text = profile['email'] ?? ''; // Set email here
+        _emailController.text = profile['email'] ?? '';
       });
     }
   }
+
 
   @override
   void dispose() {
@@ -68,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _addressController.dispose();
     _phoneController.dispose();
     _dobController.dispose();
-    _emailController.dispose(); // Dispose email controller
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -81,19 +102,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: json.encode({
         'full_name': _fullNameController.text,
         'address': _addressController.text,
-        'email': _emailController.text, // Use controller text here
+        'email': _emailController.text,
         'phone_number': _phoneController.text,
         'date_of_birth': _dobController.text,
       }),
     );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
       );
+      await _fetchProfileData();
+      await _saveToLocal();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to update profile')),
@@ -113,17 +133,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 20),
           Text(widget.username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
           const SizedBox(height: 20),
-
-          // Editable Email field
           _buildTextField(
             label: 'Email',
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             hint: _emailController.text.isEmpty ? 'Please fill your information' : null,
           ),
-
           _buildTextField(
             label: 'Full Name',
             controller: _fullNameController,
@@ -139,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             hint: _phoneController.text.isEmpty ? 'Please fill your information' : null,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Only digits allowed
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           _buildTextField(
             label: 'Date of Birth',
@@ -148,11 +164,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: _pickDate,
             hint: _dobController.text.isEmpty ? 'Please fill your information' : null,
           ),
-
           const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () async {
-              // Validate all fields including email
               if (_fullNameController.text.isEmpty ||
                   _addressController.text.isEmpty ||
                   _emailController.text.isEmpty ||
@@ -183,13 +197,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 );
-                return; // Stop further execution
+                return;
               }
-
               await _saveProfile();
             },
             child: const Text('Save Profile'),
-          )
+          ),
         ],
       ),
     );
@@ -202,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     VoidCallback? onTap,
     TextInputType? keyboardType,
     String? hint,
-    List<TextInputFormatter>? inputFormatters, // Add this parameter
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -211,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         readOnly: readOnly,
         onTap: onTap,
         keyboardType: keyboardType,
-        inputFormatters: inputFormatters, // Use it here
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
@@ -220,7 +233,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
 
   void _pickDate() async {
     DateTime? picked = await showDatePicker(

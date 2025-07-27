@@ -7,10 +7,12 @@ class UserProfileService {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final Map<String, dynamic> data = json.decode(response.body);
+      return data['profile']; // Adjust depending on your API format
     } else {
-      print('Failed to fetch profile: ${response.body}');
+      print('Error fetching profile: ${response.body}');
       return null;
     }
   }
+
 }
