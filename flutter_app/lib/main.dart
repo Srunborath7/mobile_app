@@ -60,7 +60,13 @@ class _MyAppState extends State<MyApp> {
         token: token!,
         roleId: roleId!,
         userId: userId,
+        fullName: '',
+        email: '',
+        address: '',
+        phone: '',
+        dob: '',
       )
+
           : const LoginPage(),
     );
   }

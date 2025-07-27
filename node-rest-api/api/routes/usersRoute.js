@@ -1,4 +1,5 @@
 const express = require('express');
+const db = require('../database/db');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -64,5 +65,58 @@ router.post('/login', (req, res) => {
 router.get('/profile', verifyToken, (req, res) => {
   res.json({ message: 'Protected profile', user: req.user });
 });
+
+
+router.put('/update-profile/:id', (req, res) => {
+  const userId = req.params.id;
+  const { full_name, address,email, phone_number, date_of_birth } = req.body;
+
+  const sql = `
+    UPDATE users SET 
+      full_name = ?, 
+      address = ?,
+      email = ?,
+      phone_number = ?, 
+      date_of_birth = ?
+    WHERE id = ?
+  `;
+
+  db.query(sql, [full_name, address,email, phone_number, date_of_birth, userId], (err, result) => {
+    if (err) {
+      console.error('Error updating user profile:', err);
+      return res.status(500).json({ error: 'Database update error' });
+    }
+    return res.json({ success: true, message: 'Profile updated' });
+  });
+});
+
+router.get('/profile/:id', (req, res) => {
+  const userId = req.params.id;
+
+  const sql = `
+    SELECT id, username, full_name, address, email, phone_number, date_of_birth
+    FROM users
+    WHERE id = ?
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching user profile:', err);
+      return res.status(500).json({ error: 'Database query error' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json(results[0]);
+  });
+});
+
+
+
+
+
+
+
 
 module.exports = router;

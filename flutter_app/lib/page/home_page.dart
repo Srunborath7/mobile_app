@@ -24,6 +24,8 @@ import '../video_page/video_article_page.dart';
 
 import '../trending_page/trending_article_page.dart';
 
+import '../user_profile/profile_screen.dart';
+
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -250,7 +252,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
       const BottomNavigationBarItem(icon: Icon(Icons.video_collection), label: 'Videos'),
       const BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Trending'),
-      const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Profile'),
     ];
 
     if (roleId == 1) {
@@ -271,6 +273,11 @@ class MyHomePage extends StatefulWidget {
   final String token;
   final int roleId;
   final int? userId;
+  final String fullName;
+  final String email;
+  final String address;
+  final String phone;
+  final String dob;
 
   const MyHomePage({
     super.key,
@@ -278,7 +285,13 @@ class MyHomePage extends StatefulWidget {
     required this.token,
     required this.roleId,
     this.userId,
+    required this.fullName,
+    required this.email,
+    required this.address,
+    required this.phone,
+    required this.dob,
   });
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -533,7 +546,17 @@ class _MyHomePageState extends State<MyHomePage> {
       const VideoArticlePage(),
 
       const TrendingArticlePage(),
-      const Center(child: Text('Settings Content')),
+      ProfileScreen(
+        userId: widget.userId!,
+        username: widget.title,
+        email: widget.email,
+        fullName: widget.fullName,
+        address: widget.address,
+        phone: widget.phone,
+        dob: widget.dob,
+      ),
+
+
     ];
 
     if (widget.roleId == 1) {
@@ -544,7 +567,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String _getScreenTitle(int index) {
-    final titles = ['Home', 'Videos', 'Trending', 'Settings'];
+    final titles = ['Home', 'Videos', 'Trending', 'Profile'];
     if (widget.roleId == 1) {
       titles.add('Admin Panel');
     }

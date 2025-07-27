@@ -42,6 +42,11 @@ class _PostLoginSplashState extends State<PostLoginSplash> {
               token: widget.token,
               roleId: roleId,
               userId: userId,
+              fullName: '',
+              email: '',
+              dob: '',
+              phone: '',
+              address: '',
             ),
       ),
     );
