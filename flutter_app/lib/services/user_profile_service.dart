@@ -8,11 +8,11 @@ class UserProfileService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      return data['profile']; // Adjust depending on your API format
+      // Ensure your backend returns a 'profile' object with all keys.
+      return data['profile'];
     } else {
       print('Error fetching profile: ${response.body}');
       return null;
     }
   }
-
 }

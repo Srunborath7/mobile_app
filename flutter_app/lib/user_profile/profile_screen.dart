@@ -8,21 +8,11 @@ import '../services/user_profile_service.dart';
 class ProfileScreen extends StatefulWidget {
   final int userId;
   final String username;
-  final String email;
-  final String fullName;
-  final String address;
-  final String phone;
-  final String dob;
 
   const ProfileScreen({
     Key? key,
     required this.userId,
     required this.username,
-    required this.email,
-    required this.fullName,
-    required this.address,
-    required this.phone,
-    required this.dob,
   }) : super(key: key);
 
   @override
@@ -45,8 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _dobController = TextEditingController();
     _emailController = TextEditingController();
 
-    _loadFromLocal();
-    _fetchProfileData();
+    _loadFromLocal().then((_) => _fetchProfileData());
   }
 
   Future<void> _loadFromLocal() async {
@@ -73,24 +62,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final profile = await UserProfileService.getUserProfile(widget.userId);
     if (profile != null) {
       setState(() {
-        _fullNameController.text = profile['full_name'] ?? '';
-        _addressController.text = profile['address'] ?? '';
-        _phoneController.text = profile['phone_number'] ?? '';
-        _dobController.text = profile['date_of_birth'] ?? '';
-        _emailController.text = profile['email'] ?? '';
+        _fullNameController.text = profile['full_name'] ?? _fullNameController.text;
+        _addressController.text = profile['address'] ?? _addressController.text;
+        _phoneController.text = profile['phone_number'] ?? _phoneController.text;
+        _dobController.text = profile['date_of_birth'] ?? _dobController.text;
+        _emailController.text = profile['email'] ?? _emailController.text;
       });
+      await _saveToLocal();// Sync with SharedPreferences
     }
-  }
-
-
-  @override
-  void dispose() {
-    _fullNameController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
-    _dobController.dispose();
-    _emailController.dispose();
-    super.dispose();
   }
 
   Future<void> _saveProfile() async {
@@ -109,16 +88,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
+      await _saveToLocal();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
       );
-      await _fetchProfileData();
-      await _saveToLocal();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to update profile')),
       );
     }
+  }
+
+  void _pickDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.tryParse(_dobController.text) ?? DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _dobController.text = picked.toIso8601String().split('T').first;
+      });
+    }
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    String? hint,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  void _showMissingDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Missing Information'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(
+                'https://media.tenor.com/LniIoRRKroYAAAAM/point-at-you-point.gif',
+                height: 200,
+              ),
+              const SizedBox(height: 40),
+              const Text('Please fill all fields before saving.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -134,6 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 20),
           Text(widget.username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
+
           _buildTextField(
             label: 'Email',
             controller: _emailController,
@@ -164,42 +211,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: _pickDate,
             hint: _dobController.text.isEmpty ? 'Please fill your information' : null,
           ),
+
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               if (_fullNameController.text.isEmpty ||
                   _addressController.text.isEmpty ||
                   _emailController.text.isEmpty ||
                   _phoneController.text.isEmpty ||
                   _dobController.text.isEmpty) {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Missing Information'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.network(
-                            'https://media.tenor.com/LniIoRRKroYAAAAM/point-at-you-point.gif',
-                            height: 200,
-                          ),
-                          const SizedBox(height: 40),
-                          const Text('Please fill all fields before saving.'),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                return;
+                _showMissingDialog();
+              } else {
+                _saveProfile();
               }
-              await _saveProfile();
             },
             child: const Text('Save Profile'),
           ),
@@ -208,41 +232,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    TextInputType? keyboardType,
-    String? hint,
-    List<TextInputFormatter>? inputFormatters,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        onTap: onTap,
-        keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
-
-  void _pickDate() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.tryParse(_dobController.text) ?? DateTime(2000),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      _dobController.text = picked.toIso8601String().split('T').first;
-    }
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _dobController.dispose();
+    _emailController.dispose();
+    super.dispose();
   }
 }

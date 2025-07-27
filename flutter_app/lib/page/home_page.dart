@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../connection/connection.dart';
 
+import '../drawer_content_page/app_feedback_page.dart';
+import '../drawer_content_page/privacy_page.dart';
+import '../drawer_content_page/term_of_use_page.dart';
 import 'login_page.dart';
 import 'video_slideshow.dart';
 
@@ -14,8 +17,6 @@ import '../news_category/health_news_screen.dart';
 import '../news_category/international_news_screen.dart';
 import '../news_category/political_news_screen.dart';
 
-
-
 import '../models/article.dart';
 import '../services/article_service.dart';
 import 'detail_article/article_detail_page.dart';
@@ -25,7 +26,6 @@ import '../video_page/video_article_page.dart';
 import '../trending_page/trending_article_page.dart';
 
 import '../user_profile/profile_screen.dart';
-
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -104,7 +104,7 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   final String username;
   final String email;
   final String profileImageUrl;
@@ -119,114 +119,301 @@ class CustomDrawer extends StatelessWidget {
   });
 
   @override
+  State<CustomDrawer> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  bool notificationsEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreference();
+  }
+
+  Future<void> _loadNotificationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+    });
+  }
+
+  Future<void> _saveNotificationPreference(bool enabled) async {
+    ///setState(() {
+      ///notificationsEnabled = !notificationsEnabled;
+    ///});
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificationsEnabled', enabled);
+
+
+    /*
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Notifications'),
+        content: Text(
+          notificationsEnabled
+              ? 'Notifications have been turned ON!'
+              : 'Notifications have been turned OFF!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+
+     */
+
+    // TODO: Add actual notification permission and enable/disable logic here
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: Colors.deepPurple),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Expanded(
+            child: ListView(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                DrawerHeader(
+                  decoration: const BoxDecoration(color: Colors.deepPurple),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Welcome',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Welcome',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Account: ${widget.username.replaceFirst("Welcome!", "").trim()}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.roleId == 1 ? 'Admin Account' : 'User Account',
+                              style: TextStyle(
+                                color: widget.roleId == 1
+                                    ? Colors.amberAccent
+                                    : Colors.white60,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Account: ${username.replaceFirst("Welcome!", "").trim()}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        roleId == 1 ? 'Admin Account' : 'User Account',
-                        style: TextStyle(
-                          color: roleId == 1
-                              ? Colors.amberAccent
-                              : Colors.white60,
-                          fontWeight: FontWeight.w500,
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage: NetworkImage(widget.profileImageUrl),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      widget.username,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      widget.roleId == 1 ? 'Admin Account' : 'User Account',
+                                      style: TextStyle(
+                                        color: widget.roleId == 1
+                                            ? Colors.deepPurple
+                                            : Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 28,
+                          backgroundImage: NetworkImage(widget.profileImageUrl),
                         ),
                       ),
                     ],
                   ),
                 ),
-                GestureDetector(
+                const Divider(),
+
+                /// Privacy Policy
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined, color: Colors.deepPurple),
+                  title: const Text('Privacy Policy'),
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircleAvatar(
-                                radius: 40,
-                                backgroundImage: NetworkImage(profileImageUrl),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                username,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                roleId == 1
-                                    ? 'Admin Account'
-                                    : 'User Account',
-                                style: TextStyle(
-                                  color: roleId == 1
-                                      ? Colors.deepPurple
-                                      : Colors.black54,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
                     );
                   },
-                  child: CircleAvatar(
-                    radius: 28,
-                    backgroundImage: NetworkImage(profileImageUrl),
+                ),
+
+                /// Terms of Use
+                ListTile(
+                  leading: const Icon(Icons.article_outlined, color: Colors.deepPurple),
+                  title: const Text('Terms of Use'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const TermsOfUsePage()),
+                    );
+                  },
+                ),
+
+                /// App Feedback
+                ListTile(
+                  leading: const Icon(Icons.feedback_outlined, color: Colors.deepPurple),
+                  title: const Text('App Feedback'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AppFeedbackPage()),
+                    );
+                  },
+                ),
+
+                /// Notifications
+                if (widget.roleId != 1)
+                  ListTile(
+                    leading: Icon(
+                      Icons.notifications_active_outlined,
+                      color: notificationsEnabled ? Colors.green : Colors.grey,
+                    ),
+                    title: Text(
+                      notificationsEnabled ? 'Notifications ON' : 'Notifications OFF',
+                      style: TextStyle(
+                        color: notificationsEnabled ? Colors.green : Colors.grey,
+                      ),
+                    ),
+                    trailing: Switch(
+                      value: notificationsEnabled,
+                      activeColor: Colors.green,
+                      onChanged: (bool value) {
+                        setState(() {
+                          notificationsEnabled = value;
+                        });
+                        _saveNotificationPreference(value);
+                      },
+                    ),
                   ),
+
+                ListTile(
+                  leading: const Icon(Icons.system_update_alt_outlined, color: Colors.deepPurple),
+                  title: const Text('Check for Updates'),
+                  onTap: () {
+                    Navigator.of(context).pop(); // Close the drawer
+
+                    // Show update check dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext dialogContext) => AlertDialog(
+                        title: const Text(
+                          'Update Check',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'You are using version 1.0.0.',
+                              style: TextStyle(fontSize: 23),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Your version is very lasted version',
+                              style: TextStyle(fontSize: 19, color: Colors.cyan),
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext).pop();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+
+
+
+
+                    // In real app, you might call an API here to check version.
+                  },
+                ),
+
+
+                /// Logout
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  onTap: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
                 ),
               ],
             ),
           ),
+
+          // Footer section
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.redAccent),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 30),
+            child: Column(
+              children: const [
+                Text(
+                  'App Version: 1.0.0',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Developed by Khang & Borath',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
             ),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.clear();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-              );
-            },
           ),
         ],
       ),
@@ -250,13 +437,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      const BottomNavigationBarItem(icon: Icon(Icons.video_collection), label: 'Videos'),
+      const BottomNavigationBarItem(
+          icon: Icon(Icons.video_collection), label: 'Videos'),
       const BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Trending'),
       const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Profile'),
     ];
 
     if (roleId == 1) {
-      items.add(const BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'));
+      items.add(const BottomNavigationBarItem(
+          icon: Icon(Icons.admin_panel_settings), label: 'Admin'));
     }
 
     return BottomNavigationBar(
@@ -291,7 +480,6 @@ class MyHomePage extends StatefulWidget {
     required this.phone,
     required this.dob,
   });
-
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -487,7 +675,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ArticleDetailPage(articleId: article.id), // pass article id only
+                      builder: (_) => ArticleDetailPage(articleId: article.id),
                     ),
                   );
                 },
@@ -549,14 +737,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ProfileScreen(
         userId: widget.userId!,
         username: widget.title,
-        email: widget.email,
-        fullName: widget.fullName,
-        address: widget.address,
-        phone: widget.phone,
-        dob: widget.dob,
       ),
-
-
     ];
 
     if (widget.roleId == 1) {
@@ -604,7 +785,6 @@ class _MyHomePageState extends State<MyHomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         roleId: widget.roleId,
-
       ),
     );
   }
