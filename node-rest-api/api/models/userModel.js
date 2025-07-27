@@ -28,6 +28,9 @@ function createUsersTable(callback) {
       password VARCHAR(255) NOT NULL,
       role_id INT DEFAULT 3,
       phone_number VARCHAR(12) NULL,
+      full_name VARCHAR(100) NULL,
+      address VARCHAR(255) NULL,
+      date_of_birth DATE NULL,
       profile VARCHAR(255) NULL,
       bio VARCHAR(255) NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -39,7 +42,7 @@ function createUsersTable(callback) {
       console.error('❌ Failed to create Users table:', err);
     } else {
       console.log('✅ Users table ready');
-      if (callback) callback(); // ⬅️ safe to call insertAdmin() now
+      if (callback) callback(); // Safe to call insertAdmin
     }
   });
 }
