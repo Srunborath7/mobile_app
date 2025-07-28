@@ -27,6 +27,7 @@ import '../video_page/video_article_page.dart';
 import '../trending_page/trending_article_page.dart';
 
 import '../user_profile/profile_screen.dart';
+import '../screens/post_page.dart';
 
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -67,37 +68,50 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 12),
-          child: Builder(
-            builder: (context) {
-              return GestureDetector(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Search Box
+              Container(
+                width: 160,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search........',
+                    hintStyle: TextStyle(fontSize: 14),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    suffixIcon: Icon(Icons.search, size: 20),
+                  ),
+                  style: TextStyle(fontSize: 14),
+                  onSubmitted: (value) {
+                    // TODO: Implement search logic here
+                    print('Search for: $value');
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Profile Avatar
+              GestureDetector(
                 onTap: () {
                   Scaffold.of(context).openDrawer();
                 },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      username,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundImage:
-                      NetworkImage('https://i.pravatar.cc/150?u=$username'),
-                      backgroundColor: Colors.transparent,
-                    ),
-                  ],
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=$username'),
+                  backgroundColor: Colors.transparent,
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
       ],
+
     );
   }
 
@@ -199,7 +213,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Account: ${widget.username.replaceFirst("Welcome!", "").trim()}',
+                              'Account Name: ${widget.username.replaceFirst("Welcome!", "").trim()}',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -731,12 +745,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
 
-      /// Videos page (new)
       const VideoArticlePage(),
 
       const TrendingArticlePage(),
       ProfileScreen(
-        userId: widget.userId!,
+        userId: widget.userId ?? 0,
         username: widget.title,
       ),
     ];
@@ -777,16 +790,48 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       drawer: CustomDrawer(
         username: widget.title,
-        email: 'john.doe@example.com',
+        email: widget.email,
         profileImageUrl: 'https://i.pravatar.cc/150?u=${widget.title}',
         roleId: widget.roleId,
       ),
       body: pages[_selectedIndex],
+
+      floatingActionButton: widget.roleId == 1
+          ? SizedBox(
+        width: 60,
+        height: 50,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => PostPage()));
+          },
+          backgroundColor: Colors.orangeAccent,
+          child: Icon(Icons.post_add, size: 30, color: Colors.cyan,),
+        ),
+      )
+          : null,
+
+      floatingActionButtonLocation: CustomFabLocation(offsetY: 80),
+
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         roleId: widget.roleId,
       ),
     );
+  }
+}
+
+// Put this class outside the widget class (e.g., below it or in separate file)
+class CustomFabLocation extends FloatingActionButtonLocation {
+  final double offsetY;
+
+  CustomFabLocation({this.offsetY = 100.200});
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double fabX = (scaffoldGeometry.scaffoldSize.width - scaffoldGeometry.floatingActionButtonSize.width) / 2;
+    final double fabY = scaffoldGeometry.scaffoldSize.height - scaffoldGeometry.floatingActionButtonSize.height - offsetY;
+    return Offset(fabX, fabY);
   }
 }
