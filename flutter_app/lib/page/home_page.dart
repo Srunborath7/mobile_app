@@ -29,6 +29,8 @@ import '../trending_page/trending_article_page.dart';
 import '../user_profile/profile_screen.dart';
 import '../screens/post_page.dart';
 
+import 'admin_panel_page/admin_dashboard_screen.dart';
+
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
   final String username;
@@ -320,7 +322,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 ),
 
                 /// Notifications
-                if (widget.roleId != 1)
+                if (widget.roleId != 1 && widget.roleId != 2)
+
                   ListTile(
                     leading: Icon(
                       Icons.notifications_active_outlined,
@@ -458,7 +461,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Profile'),
     ];
 
-    if (roleId == 1) {
+    if (roleId == 1 || roleId == 2) {
       items.add(const BottomNavigationBarItem(
           icon: Icon(Icons.admin_panel_settings), label: 'Admin'));
     }
@@ -754,8 +757,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ];
 
-    if (widget.roleId == 1) {
-      basePages.add(const Center(child: Text('Admin Panel Content')));
+    if (widget.roleId == 1 || widget.roleId == 2) {
+      basePages.add(const AdminDashboardScreen());
     }
 
     return basePages;
@@ -763,14 +766,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _getScreenTitle(int index) {
     final titles = ['Home', 'Videos', 'Trending', 'Profile'];
-    if (widget.roleId == 1) {
+    if (widget.roleId == 1 || widget.roleId == 2) {
       titles.add('Admin Panel');
     }
     return titles[index];
   }
 
   void _onItemTapped(int index) {
-    final maxIndex = widget.roleId == 1 ? 4 : 3;
+    final maxIndex = widget.roleId == 1 || widget.roleId ==2 ? 4 : 3;
     if (index > maxIndex) return;
     setState(() {
       _selectedIndex = index;
@@ -796,7 +799,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: pages[_selectedIndex],
 
-      floatingActionButton: widget.roleId == 1
+      floatingActionButton: widget.roleId == 1 || widget.roleId == 2
           ? SizedBox(
         width: 60,
         height: 50,

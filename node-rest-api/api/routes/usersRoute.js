@@ -40,6 +40,50 @@ router.post('/register', async (req, res) => {
 });
 
 
+// ✅ Admin-only route to register user/editor accounts
+router.post('/admin-register', async (req, res) => {
+  const { username, email, password, role } = req.body;
+  console.log("📥 Received role from frontend:", role);
+
+
+  // Validate inputs
+  if (!username || !email || !password || !role) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  // Role mapping
+  const roleMap = {
+    user: 3,
+    editor: 2
+  };
+
+  const role_id = roleMap[role?.toLowerCase()] || 3;
+  //const role_id = roleMap[roleKey];
+
+  if (!role_id) {
+    return res.status(400).json({ message: 'Invalid role provided. Must be "user" or "editor"' });
+  }
+
+  // Check if email already exists
+  getUser(email, async (err, existingUser) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    if (existingUser) return res.status(409).json({ message: 'Email already registered' });
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      insertUser({ username, email, password: hashedPassword, role_id }, (err) => {
+        if (err) return res.status(500).json({ message: 'Insert failed' });
+        res.status(201).json({ message: `User registered successfully as ${roleKey}` });
+      });
+    } catch (err) {
+      console.error('Hashing error:', err);
+      res.status(500).json({ message: 'Internal error during registration' });
+    }
+  });
+});
+
+
+
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
@@ -111,6 +155,65 @@ router.get('/profile/:id', (req, res) => {
     return res.json(results[0]);
   });
 });
+
+
+
+/// Get user account count number for using the app
+router.get('/user-count', (req, res) => {
+  const sql = 'SELECT COUNT(*) AS totalUsers FROM users';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying DB:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results[0]); // => { totalUsers: 5 }
+  });
+});
+
+router.get('/all-users', (req, res) => {
+  const sql = `
+    SELECT users.id, users.username, users.email, role_user.role_title 
+    FROM users 
+    JOIN role_user ON users.role_id = role_user.id
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results); // array of users with roles
+  });
+});
+
+
+// DELETE user by ID - only for user or editor roles (admin can delete)
+router.delete('/delete/:id', (req, res) => {
+  const userId = req.params.id;
+
+  // Optional: You can add authorization middleware here to restrict access
+
+  // First, check user's role
+  const checkRoleSql = `SELECT role_id FROM users WHERE id = ?`;
+  db.query(checkRoleSql, [userId], (err, results) => {
+    if (err) return res.status(500).json({ message: 'DB error' });
+    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+
+    const roleId = results[0].role_id;
+    if (roleId === 1) {
+      // Admin role, forbid deletion
+      return res.status(403).json({ message: 'Cannot delete admin users' });
+    }
+
+    // Proceed with deletion for user/editor only
+    const deleteSql = `DELETE FROM users WHERE id = ?`;
+    db.query(deleteSql, [userId], (err2) => {
+      if (err2) return res.status(500).json({ message: 'Failed to delete user' });
+      res.json({ message: 'User deleted successfully' });
+    });
+  });
+});
+
 
 
 
