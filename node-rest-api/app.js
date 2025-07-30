@@ -30,6 +30,8 @@ const userRoutes = require('./api/routes/usersRoute');
 const articleRoutes = require('./api/routes/articlesRoute');
 const videoArticlesRoutes = require('./api/routes/video_article_Route');
 const trendingArticlesRoutes = require('./api/routes/trending_article_Route');
+require('./api/models/categoryModel'); 
+const categories= require('./api/routes/categoryRoute');
 
 async function setupDatabase() {
   // 🧱 Setup users and roles
@@ -41,9 +43,7 @@ async function setupDatabase() {
   // 📰 Setup articles and article_detail
   await createArticlesTable();
   await createArticleDetailTable();
-  await insertDefaultArticles(); // optional seed data
-  await insertDefaultArticleDetails();
-
+  
   // Setup video_articles table and seed data
   await createVideoArticlesTable();
   await insertDefaultVideoArticles();
@@ -73,7 +73,8 @@ async function createApp() {
   app.use('/api/articles', articleRoutes);
   app.use('/api/videos', videoArticlesRoutes);
   app.use('/api/trending', trendingArticlesRoutes);
-
+  app.use('/api/categories', categories);
+  app.use('/uploads', express.static('uploads'));
   return app;
 }
 

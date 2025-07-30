@@ -306,20 +306,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                           );
                         },
                         child: CircleAvatar(
-                          radius: 28,
+                          radius: 32,
                           backgroundColor: Colors.deepPurple.shade100,
                           child: Text(
                             Initial(widget.username),
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
                             ),
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
                 ),
