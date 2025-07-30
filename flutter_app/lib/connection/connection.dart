@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 
-const String baseUrl = 'http://192.168.0.247:3000';
+const String baseUrl = 'http://192.168.56.1:3000';
 
 Future<void> testConnection() async {
   try {

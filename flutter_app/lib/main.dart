@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'page/login_page.dart';
 import 'page/home_page.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -18,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String? token;
-  String? welcome;
+  String? fullName;
   int? roleId;
   int? userId;
 
@@ -32,18 +31,16 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
 
     final storedToken = prefs.getString('token');
-    final storedWelcome = prefs.getString('welcome');
-
-    // Try to get role_id and user_id as integers
+    final storedFullName = prefs.getString('full_name');
     int? storedRoleId = prefs.getInt('role_id') ?? int.tryParse(prefs.getString('role_id') ?? '');
     int? storedUserId = prefs.getInt('user_id') ?? int.tryParse(prefs.getString('user_id') ?? '');
 
-    if (storedToken != null && storedWelcome != null && storedRoleId != null) {
+    if (storedToken != null && storedFullName != null && storedRoleId != null) {
       setState(() {
         token = storedToken;
-        welcome = storedWelcome;
         roleId = storedRoleId;
         userId = storedUserId;
+        fullName = storedFullName;
       });
     }
   }
@@ -55,19 +52,18 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: (token != null && welcome != null && roleId != null)
+      home: (token != null && fullName != null && roleId != null)
           ? MyHomePage(
-        title: welcome!,
+        title: fullName!, // Pass full name here
         token: token!,
         roleId: roleId!,
         userId: userId,
-        fullName: '',
+        fullName: fullName!,
         email: '',
         address: '',
         phone: '',
         dob: '',
       )
-
           : const LoginPage(),
     );
   }

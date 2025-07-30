@@ -1,5 +1,27 @@
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+// Function to get first uppercase letter of username
+String getInitial(String name) {
+  if (name.trim().isEmpty) return '?';
+  return name.trim().split(' ').first[0].toUpperCase();
+}
+
+// Custom AppBar
 class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String screenTitle;
   final String username;
@@ -50,10 +72,15 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
                     const SizedBox(width: 8),
                     CircleAvatar(
                       radius: 18,
-                      backgroundImage: NetworkImage(
-                        'https://i.pravatar.cc/150?u=$username',
+                      backgroundColor: Colors.deepPurple.shade100,
+                      child: Text(
+                        getInitial(username),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.deepPurple,
+                        ),
                       ),
-                      backgroundColor: Colors.transparent,
                     ),
                   ],
                 ),
@@ -69,7 +96,7 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-// HomePage using profile drawer
+// Home Page with drawer
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -92,23 +119,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const username = 'John Doe';
-    const email = 'john.doe@example.com';
-    final profileImageUrl = 'https://i.pravatar.cc/150?u=johndoe';
+    const username = 'Srun Borath';
+    const email = 'srun.borath@example.com';
 
     return Scaffold(
       key: _scaffoldKey,
       drawer: CustomDrawer(
         username: username,
         email: email,
-        profileImageUrl: profileImageUrl,
       ),
       appBar: CustomNavbar(
         screenTitle: 'My App',
         username: username,
         userIs: roleId,
         onLogout: () {
-          // handle logout here
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Logged out')),
           );
@@ -121,17 +145,15 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// New CustomDrawer with profile info
+// Custom Drawer with profile info
 class CustomDrawer extends StatelessWidget {
   final String username;
   final String email;
-  final String profileImageUrl;
 
   const CustomDrawer({
     super.key,
     required this.username,
     required this.email,
-    required this.profileImageUrl,
   });
 
   @override
@@ -145,7 +167,15 @@ class CustomDrawer extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage(profileImageUrl),
+                backgroundColor: Colors.deepPurple.shade100,
+                child: Text(
+                  getInitial(username),
+                  style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               Text(
@@ -170,15 +200,15 @@ class CustomDrawer extends StatelessWidget {
                 label: const Text('Edit Profile'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 4,
                 ),
                 onPressed: () {
                   Navigator.pop(context);
-                  // Navigate to edit profile page or do something
+                  // Navigate to edit profile screen
                 },
               ),
               const SizedBox(height: 16),
@@ -187,15 +217,14 @@ class CustomDrawer extends StatelessWidget {
                 label: const Text('Logout'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 4,
                 ),
                 onPressed: () {
                   Navigator.pop(context);
-                  // Perform logout
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Logged out')),
                   );

@@ -44,6 +44,10 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
     required this.userIs,
     this.onLogout,
   });
+  String getInitial(String name) {
+    if (name.trim().isEmpty) return '?';
+    return name.trim().split(' ').first[0].toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,8 +109,15 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 child: CircleAvatar(
                   radius: 18,
-                  backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=$username'),
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: Colors.deepPurple.shade100,
+                  child: Text(
+                    getInitial(username),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -140,6 +151,7 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class _CustomDrawerState extends State<CustomDrawer> {
+
   bool notificationsEnabled = false;
 
   @override
@@ -154,7 +166,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
       notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
     });
   }
-
+  String Initial(String name) {
+    if (name.trim().isEmpty) return '?';
+    return name.trim().split(' ').first[0].toUpperCase();
+  }
   Future<void> _saveNotificationPreference(bool enabled) async {
     ///setState(() {
       ///notificationsEnabled = !notificationsEnabled;
@@ -249,7 +264,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   children: [
                                     CircleAvatar(
                                       radius: 40,
-                                      backgroundImage: NetworkImage(widget.profileImageUrl),
+                                      backgroundColor: Colors.deepPurple.shade100,
+                                      child: Text(
+
+                                        Initial(widget.username),
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.deepPurple,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
@@ -263,10 +287,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     Text(
                                       widget.roleId == 1 ? 'Admin Account' : 'User Account',
                                       style: TextStyle(
-                                        color: widget.roleId == 1
-                                            ? Colors.deepPurple
-                                            : Colors.black54,
+                                        color: widget.roleId == 1 ? Colors.deepPurple : Colors.black54,
                                         fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      widget.email,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
                                       ),
                                     ),
                                   ],
@@ -277,9 +307,19 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         },
                         child: CircleAvatar(
                           radius: 28,
-                          backgroundImage: NetworkImage(widget.profileImageUrl),
+                          backgroundColor: Colors.deepPurple.shade100,
+                          child: Text(
+                            Initial(widget.username),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
                         ),
                       ),
+
+
                     ],
                   ),
                 ),

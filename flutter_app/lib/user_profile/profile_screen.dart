@@ -26,6 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _dobController;
   late TextEditingController _emailController;
 
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -35,18 +37,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _dobController = TextEditingController();
     _emailController = TextEditingController();
 
-    _loadFromLocal().then((_) => _fetchProfileData());
+    _loadFromLocal().then((_) => _fetchProfileData()).whenComplete(() {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   Future<void> _loadFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _fullNameController.text = prefs.getString('full_name') ?? '';
-      _addressController.text = prefs.getString('address') ?? '';
-      _emailController.text = prefs.getString('email') ?? '';
-      _phoneController.text = prefs.getString('phone_number') ?? '';
-      _dobController.text = prefs.getString('date_of_birth') ?? '';
-    });
+    _fullNameController.text = prefs.getString('full_name') ?? '';
+    _addressController.text = prefs.getString('address') ?? '';
+    _emailController.text = prefs.getString('email') ?? '';
+    _phoneController.text = prefs.getString('phone_number') ?? '';
+    _dobController.text = prefs.getString('date_of_birth') ?? '';
   }
 
   Future<void> _saveToLocal() async {
@@ -60,15 +64,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _fetchProfileData() async {
     final profile = await UserProfileService.getUserProfile(widget.userId);
+    print("Profile data: $profile");
+
     if (profile != null) {
       setState(() {
-        _fullNameController.text = profile['full_name'] ?? _fullNameController.text;
-        _addressController.text = profile['address'] ?? _addressController.text;
-        _phoneController.text = profile['phone_number'] ?? _phoneController.text;
-        _dobController.text = profile['date_of_birth'] ?? _dobController.text;
-        _emailController.text = profile['email'] ?? _emailController.text;
+        _fullNameController.text = profile['full_name'] ?? '';
+        _addressController.text = profile['address'] ?? '';
+        _phoneController.text = profile['phone_number'] ?? '';
+        _dobController.text = profile['date_of_birth'] ?? '';
+        _emailController.text = profile['email'] ?? '';
       });
-      await _saveToLocal();// Sync with SharedPreferences
+      await _saveToLocal();
     }
   }
 
@@ -169,6 +175,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
