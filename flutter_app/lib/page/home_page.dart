@@ -5,7 +5,7 @@ import '../connection/connection.dart';
 import '../drawer_content_page/app_feedback_page.dart';
 import '../drawer_content_page/privacy_page.dart';
 import '../drawer_content_page/term_of_use_page.dart';
-
+import '../drawer_content_page/Changepassword.dart';
 import 'login_page.dart';
 import 'video_slideshow.dart';
 
@@ -58,7 +58,7 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
       leading: Padding(
         padding: const EdgeInsets.only(left: 12.0),
         child: CircleAvatar(
-          radius: 18,
+          radius: 14,
           backgroundImage: AssetImage('assets/image/pf.jpg'),
           backgroundColor: Colors.transparent,
         ),
@@ -433,7 +433,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   },
                 ),
 
-
+                ListTile(
+                  leading: const Icon(Icons.feedback_outlined, color: Colors.deepPurple),
+                  title: const Text('Change Password'),
+                    onTap: () {
+                      Navigator.of(context).pop(); // close drawer
+                      Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ChangePassword()),
+                    );
+                  },
+                ),
                 /// Logout
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.redAccent),
@@ -543,10 +552,14 @@ class MyHomePage extends StatefulWidget {
 
 class TechnologyNewsScreen extends StatelessWidget {
   const TechnologyNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Technology News'));
-}
 
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Technology News'),
+    );
+  }
+}
 class HealthNewsScreen extends StatelessWidget {
   const HealthNewsScreen({super.key});
   @override
@@ -706,28 +719,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<List<Article>>(
       future: _futureArticles,
       builder: (context, snapshot) {
-        print('FutureBuilder state: ${snapshot.connectionState}');
         if (snapshot.connectionState == ConnectionState.waiting) {
-          print('Waiting for articles...');
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          print('Error in FutureBuilder: ${snapshot.error}');
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          print('No articles found or empty data');
+        } else if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
           return const Center(child: Text('No articles found'));
         } else {
           final articles = snapshot.data!;
-          print('Building UI with ${articles.length} articles');
-          return Column(
-            children: articles.map((article) {
-              print('Article: ${article.title}');
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: articles.length,
+            itemBuilder: (context, index) {
+              final article = articles[index];
               return _articleBox(
-                title: article.title,
-                summary: article.summary,
+                title: article.title ?? 'No Title',
+                summary: article.summary ?? 'No Summary',
                 imageUrl: article.imageUrl,
                 onTap: () {
-                  print('🟢 Tapped article ID: ${article.id}');
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -736,7 +746,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
               );
-            }).toList(),
+            },
           );
         }
       },

@@ -8,13 +8,7 @@ const createApp = require('./app');
 
 async function startServer() {
   try {
-    // Wait for app setup (including DB init) to finish
     const app = await createApp();
-
-    // Enable CORS here if you want (or keep it in app.js)
-    // const cors = require('cors');
-    // app.use(cors());
-
     const server = http.createServer(app);
 
     server.listen(port, () => {

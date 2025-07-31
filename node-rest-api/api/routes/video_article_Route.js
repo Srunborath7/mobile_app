@@ -31,20 +31,22 @@ router.get('/:id', (req, res) => {
 
 // POST create new video article
 router.post('/', (req, res) => {
-  const { title, description, video_url } = req.body;
-  if (!title || !description || !video_url) {
-    return res.status(400).json({ error: 'Please provide title, description and video_url' });
+  const { title, description, thumbnail_url, video_url } = req.body;
+
+  if (!title || !video_url) {
+    return res.status(400).json({ error: 'Title and video_url are required' });
   }
 
-  const newArticle = { title, description, video_url };
-  db.query('INSERT INTO video_articles SET ?', newArticle, (err, result) => {
+  const sql = `INSERT INTO video_articles (title, description, thumbnail_url, video_url) VALUES (?, ?, ?, ?)`;
+  db.query(sql, [title, description, thumbnail_url, video_url], (err, result) => {
     if (err) {
-      console.error('Error creating video article:', err);
+      console.error('Insert video article error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
     res.status(201).json({ message: 'Video article created', id: result.insertId });
   });
 });
+
 
 // PUT update video article by ID
 router.put('/:id', (req, res) => {

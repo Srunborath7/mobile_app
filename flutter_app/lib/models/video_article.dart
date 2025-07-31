@@ -1,11 +1,10 @@
-
-
 class VideoArticle {
   final int id;
   final String title;
   final String description;
   final String thumbnailUrl;
   final String videoUrl;
+  final DateTime createdAt;
 
   VideoArticle({
     required this.id,
@@ -13,6 +12,7 @@ class VideoArticle {
     required this.description,
     required this.thumbnailUrl,
     required this.videoUrl,
+    required this.createdAt,
   });
 
   factory VideoArticle.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,8 @@ class VideoArticle {
       title: json['title'],
       description: json['description'],
       thumbnailUrl: json['thumbnail_url'],
-      videoUrl: json['video_url'],              // YouTube link from MySQL
+      videoUrl: json['video_url'],
+      createdAt: DateTime.parse(json['created_at']),
     );
   }
 }

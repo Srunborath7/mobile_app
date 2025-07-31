@@ -15,6 +15,7 @@ class ArticleDetailPage extends StatefulWidget {
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
   ArticleDetail? articleDetail;
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -29,11 +30,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       setState(() {
         articleDetail = fetchedArticle;
         isLoading = false;
+        errorMessage = null;
       });
     } catch (e) {
       print('❌ Error fetching article: $e');
       setState(() {
         isLoading = false;
+        errorMessage = 'Failed to load article detail.';
       });
     }
   }
@@ -50,6 +53,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       return Scaffold(
         appBar: AppBar(title: const Text('Loading...')),
         body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(child: Text(errorMessage!)),
       );
     }
 

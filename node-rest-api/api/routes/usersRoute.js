@@ -214,12 +214,44 @@ router.delete('/delete/:id', (req, res) => {
   });
 });
 
+router.post('/change-password', verifyToken, (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user.id;
 
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ message: 'Old and new passwords are required' });
+  }
 
+  getUser(req.user.email, async (err, user) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid old password' });
+    }
 
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-
-
+      const updateSql = 'UPDATE users SET password = ? WHERE id = ?';
+      db.query(updateSql, [hashedPassword, userId], (updateErr) => {
+        if (updateErr) {
+          console.error('Password update error:', updateErr);
+          return res.status(500).json({ message: 'Failed to update password' });
+        }
+        return res.json({ message: 'Password changed successfully' });
+      });
+    } catch (err) {
+      console.error('Hashing error:', err);
+      res.status(500).json({ message: 'Error hashing new password' });
+    }
+  });
+});
 module.exports = router;

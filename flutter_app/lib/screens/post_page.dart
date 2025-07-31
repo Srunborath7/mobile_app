@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import '../connection/connection.dart';
 
@@ -15,16 +13,25 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for text inputs
+  // Toggle: false = photo article, true = video article
+  bool isVideo = false;
+
+  // Common fields
   final TextEditingController _titleController = TextEditingController();
+
+  // Photo article fields
   final TextEditingController _summaryController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
-
+  final TextEditingController _imageUrlController = TextEditingController();
   int? _selectedCategoryId;
-  File? _image;
   List<Map<String, dynamic>> categories = [];
   bool isLoadingCategories = true;
+
+  // Video article fields
+  final TextEditingController _videoDescriptionController = TextEditingController();
+  final TextEditingController _videoThumbnailController = TextEditingController();
+  final TextEditingController _videoUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -53,45 +60,63 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate() || _image == null || _selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and pick an image')),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    final uri = Uri.parse("$baseUrl/api/articles/full");
+    Uri uri;
+    Map<String, dynamic> body;
 
-    var request = http.MultipartRequest("POST", uri)
-      ..fields['title'] = _titleController.text
-      ..fields['summary'] = _summaryController.text
-      ..fields['category_id'] = _selectedCategoryId.toString()
-      ..fields['content'] = _contentController.text
-      ..fields['author'] = _authorController.text;
+    if (isVideo) {
+      // Validate video fields
+      if (_videoUrlController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Video URL is required')),
+        );
+        return;
+      }
 
-    request.files.add(await http.MultipartFile.fromPath("image", _image!.path));
+      uri = Uri.parse('$baseUrl/api/videos');
+      body = {
+        'title': _titleController.text.trim(),
+        'description': _videoDescriptionController.text.trim(),
+        'thumbnail_url': _videoThumbnailController.text.trim(),
+        'video_url': _videoUrlController.text.trim(),
+      };
+    } else {
+      // Validate photo article fields
+      if (_imageUrlController.text.isEmpty || _selectedCategoryId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image URL and Category are required')),
+        );
+        return;
+      }
+
+      uri = Uri.parse('$baseUrl/api/articles/full');
+      body = {
+        'title': _titleController.text.trim(),
+        'summary': _summaryController.text.trim(),
+        'category_id': _selectedCategoryId,
+        'content': _contentController.text.trim(),
+        'author': _authorController.text.trim(),
+        'image': _imageUrlController.text.trim(),
+      };
+    }
 
     try {
-      final response = await request.send();
-      if (response.statusCode == 201) {
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Article submitted successfully')),
+          SnackBar(content: Text(isVideo ? 'Video article submitted successfully' : 'Photo article submitted successfully')),
         );
         _formKey.currentState?.reset();
-        setState(() {
-          _image = null;
-          _selectedCategoryId = null;
-        });
+        _clearAllFields();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Submission failed: ${response.statusCode}')),
@@ -100,9 +125,23 @@ class _PostPageState extends State<PostPage> {
     } catch (e) {
       print("Submission error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred')),
+        const SnackBar(content: Text('An error occurred during submission')),
       );
     }
+  }
+
+  void _clearAllFields() {
+    _titleController.clear();
+    _summaryController.clear();
+    _contentController.clear();
+    _authorController.clear();
+    _imageUrlController.clear();
+    _videoDescriptionController.clear();
+    _videoThumbnailController.clear();
+    _videoUrlController.clear();
+    setState(() {
+      _selectedCategoryId = null;
+    });
   }
 
   @override
@@ -118,59 +157,117 @@ class _PostPageState extends State<PostPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Article Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              // Toggle radio buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('Photo Article'),
+                      value: false,
+                      groupValue: isVideo,
+                      onChanged: (val) {
+                        setState(() {
+                          isVideo = val!;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('Video Article'),
+                      value: true,
+                      groupValue: isVideo,
+                      onChanged: (val) {
+                        setState(() {
+                          isVideo = val!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
+
+              // Title - common field
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) => value!.isEmpty ? 'Title is required' : null,
+                validator: (value) => value == null || value.isEmpty ? 'Title is required' : null,
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _summaryController,
-                decoration: const InputDecoration(labelText: 'Summary'),
-                maxLines: 2,
-                validator: (value) => value!.isEmpty ? 'Summary is required' : null,
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: 'Category'),
-                value: _selectedCategoryId,
-                items: categories
-                    .map((c) => DropdownMenuItem<int>(
-                  value: c['id'],
-                  child: Text(c['name']),
-                ))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedCategoryId = val),
-                validator: (val) => val == null ? 'Please select a category' : null,
-              ),
-              const SizedBox(height: 10),
-              _image != null
-                  ? Image.file(_image!, height: 150)
-                  : const Text('No image selected'),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.photo_library),
-                label: const Text('Pick Image'),
-              ),
-              const Divider(height: 40),
-              const Text('Article Detail', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(labelText: 'Content'),
-                maxLines: 5,
-                validator: (value) => value!.isEmpty ? 'Content is required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _authorController,
-                decoration: const InputDecoration(labelText: 'Author'),
-                validator: (value) => value!.isEmpty ? 'Author is required' : null,
-              ),
-              const SizedBox(height: 20),
+
+              const SizedBox(height: 16),
+
+              // Conditional fields
+              if (!isVideo) ...[
+                // PHOTO ARTICLE FORM
+                TextFormField(
+                  controller: _summaryController,
+                  decoration: const InputDecoration(labelText: 'Summary'),
+                  maxLines: 2,
+                  validator: (value) => value == null || value.isEmpty ? 'Summary is required' : null,
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<int>(
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  value: _selectedCategoryId,
+                  items: categories
+                      .map((c) => DropdownMenuItem<int>(
+                    value: c['id'],
+                    child: Text(c['name']),
+                  ))
+                      .toList(),
+                  onChanged: (val) => setState(() => _selectedCategoryId = val),
+                  validator: (val) => val == null ? 'Please select a category' : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _imageUrlController,
+                  decoration: const InputDecoration(
+                    labelText: 'Image URL',
+                    hintText: 'Paste the full image URL here',
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Image URL is required' : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _contentController,
+                  decoration: const InputDecoration(labelText: 'Content'),
+                  maxLines: 5,
+                  validator: (value) => value == null || value.isEmpty ? 'Content is required' : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _authorController,
+                  decoration: const InputDecoration(labelText: 'Author'),
+                  validator: (value) => value == null || value.isEmpty ? 'Author is required' : null,
+                ),
+              ] else ...[
+                // VIDEO ARTICLE FORM
+                TextFormField(
+                  controller: _videoDescriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _videoThumbnailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Thumbnail URL',
+                    hintText: 'Paste the full thumbnail image URL here',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _videoUrlController,
+                  decoration: const InputDecoration(
+                    labelText: 'Video URL',
+                    hintText: 'Paste the full video URL here',
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Video URL is required' : null,
+                ),
+              ],
+              const SizedBox(height: 30),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(

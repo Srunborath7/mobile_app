@@ -27,10 +27,13 @@ function insertDefaultCategories() {
 
       const sqlInsert = `
         INSERT INTO categories (name) VALUES 
-        ('Sports'), 
-        ('Technology'), 
-        ('Health'), 
-        ('Entertainment')
+        ('Technology News'), 
+        ('Health News'), 
+        ('Finance News'), 
+        ('International News'),
+        ('Education News'), 
+        ('Entertainment News'), 
+        ('Political News')
       `;
 
       db.query(sqlInsert, (err2, result2) => {

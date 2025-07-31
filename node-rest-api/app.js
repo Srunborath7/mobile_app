@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-
+const path = require('path');
 const {
   createUsersTable,
   createRoleTable,
@@ -39,8 +39,6 @@ async function setupDatabase() {
   await createUsersTable();
   await insertDefaultRoles();
   await insertAdmin();
-
-  // 📰 Setup articles and article_detail
   await createArticlesTable();
   await createArticleDetailTable();
   
@@ -74,7 +72,8 @@ async function createApp() {
   app.use('/api/videos', videoArticlesRoutes);
   app.use('/api/trending', trendingArticlesRoutes);
   app.use('/api/categories', categories);
-  app.use('/uploads', express.static('uploads'));
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
   return app;
 }
 
