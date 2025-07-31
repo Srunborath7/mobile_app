@@ -29,4 +29,20 @@ router.get('/article/:id', (req, res) => {
   });
 });
 
+
+
+router.get('/article/category/:categoryId', (req, res) => {
+  const categoryId = req.params.categoryId;
+  const sql = `
+    SELECT a.*, c.name AS category_name
+    FROM articles a
+    JOIN categories c ON a.category_id = c.id
+    WHERE a.category_id = ?
+  `;
+  db.query(sql, [categoryId], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Query error', details: err.message });
+    res.json(results);
+  });
+});
+
 module.exports = router;

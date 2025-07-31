@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../connection/connection.dart'; // adjust path if needed
+import '../connection/connection.dart';
+import '../page/detail_article/article_detail_page.dart';
 
 class TechnologyNewsScreen extends StatefulWidget {
   const TechnologyNewsScreen({super.key});
@@ -23,8 +24,10 @@ class _TechnologyNewsScreenState extends State<TechnologyNewsScreen> {
 
   Future<void> fetchTechnologyArticles() async {
     try {
-      final response =
-      await http.get(Uri.parse('$baseUrl/api/categories/article/1'));
+      // Make sure this endpoint returns only Technology articles
+      final response = await http.get(Uri.parse('$baseUrl/api/categories/article/category/1'));
+
+
       if (response.statusCode == 200) {
         setState(() {
           articles = json.decode(response.body);
@@ -58,6 +61,15 @@ class _TechnologyNewsScreenState extends State<TechnologyNewsScreen> {
             : const Icon(Icons.article),
         title: Text(article['title'] ?? 'No Title'),
         subtitle: Text(article['summary'] ?? 'No Summary'),
+        onTap: () {
+          // ✅ Navigate to the article detail page with the articleId
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ArticleDetailPage(articleId: article['id']),
+            ),
+          );
+        },
       ),
     );
   }
@@ -72,8 +84,7 @@ class _TechnologyNewsScreenState extends State<TechnologyNewsScreen> {
           ? Center(child: Text(errorMessage!))
           : ListView.builder(
         itemCount: articles.length,
-        itemBuilder: (context, index) =>
-            _buildArticleCard(articles[index]),
+        itemBuilder: (context, index) => _buildArticleCard(articles[index]),
       ),
     );
   }

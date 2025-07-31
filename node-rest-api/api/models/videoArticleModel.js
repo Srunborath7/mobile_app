@@ -30,22 +30,22 @@ async function insertDefaultVideoArticles() {
       if (results[0].count === 0) {
         const defaultVideos = [
           {
-            title: 'Flutter Video Tutorial',
-            description: 'Learn Flutter step-by-step with this tutorial.',
-            thumbnail_url: 'https://img.freepik.com/free-vector/sad-boy-with-sweat-drops_1308-170838.jpg',
-            video_url: 'https://youtu.be/pBTPyCAyggE?si=Ik4-mj1RcXgYVxje',
+            title: 'Thailand Fired Cambodia First',
+            description: 'Thailand launches airstrikes on Cambodian military targets as deadly border dispute escalates',
+            thumbnail_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUXFrYIb8ELf2TSsoGUXH4fygzgghWH5dR6Q&s',
+            video_url: 'https://youtu.be/el3NXxiswQY?si=SzyLPdVSV0I_1O9v',
           },
           {
-            title: 'kab tic tic klach oun chue',
-            description: 'Understand the basics of Dart language.',
-            thumbnail_url: 'https://cdn.vectorstock.com/i/1000v/01/39/sad-boy-sitting-on-the-ground-floor-vector-47590139.jpg',
-            video_url: 'https://youtu.be/3j8qPENMeHU?si=ZyDcJgzkB7KynSb2',
+            title: 'Thailand started the war',
+            description: 'Thailand launches airstrikes on Cambodia after clashes on disputed border | BBC News',
+            thumbnail_url: 'https://scontent.fpnh24-1.fna.fbcdn.net/v/t39.30808-6/524342680_1327991388685395_1170425743622767421_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEc4T2DOn7jpKEA12sKnHnGKXHkdoB68ZopceR2gHrxmrMhBHjUKQfbMBQihbks7ENE-gXxUcChPjJW7AT9Jo-O&_nc_ohc=xbncfGSh5AEQ7kNvwELv4oe&_nc_oc=AdmeUE7JL_2lFwfkqV2gLSVcyijapddGYZAZCXZQrKKGmNKbu9mAfAimiL6ZPYsZxqA&_nc_zt=23&_nc_ht=scontent.fpnh24-1.fna&_nc_gid=AP8V61Nd0lO6j2taFoABGw&oh=00_AfTKlCvP0kvpc4QXsVLf_7HXi9iNNdag-n8OBe49HUpTMw&oe=6890F6E2',
+            video_url: 'https://youtu.be/ES-U1huVBEY?si=dnKBH3lNAAlwMrfs',
           },
           {
-            title: 'sad men ',
-            description: 'Bloc vs Provider in Flutter.',
-            thumbnail_url: 'https://cdn.vectorstock.com/i/1000v/25/34/sad-boy-sitting-on-floor-vector-26542534.jpg',
-            video_url: 'https://youtu.be/D1NWT9ZeV2A?si=dhPqcjASQnqJg9xI',
+            title: 'Cambodia Need Peace ',
+            description: 'Thailand and Cambodia agree to immediate ceasefire',
+            thumbnail_url: 'https://scontent.fpnh24-1.fna.fbcdn.net/v/t39.30808-6/522912956_807811335443633_118472222620435373_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFFH7AYo7keJ8aWTFVKo1_qGBEtVO6OJ5EYES1U7o4nka56TwM5e8__iD_5uEKBhzWOxyFp9iglXW2KKHy3LXFL&_nc_ohc=4CxNVbZtpjAQ7kNvwFEAYig&_nc_oc=AdmqyuMAIBkz7hlOeivS5kc8iHRqSNDJc0fV1oWeMINLhcv-p0A1jeFt3QZoItFZCwk&_nc_zt=23&_nc_ht=scontent.fpnh24-1.fna&_nc_gid=xoTOMGmjH9orPYFOlnZTMQ&oh=00_AfRbNXzjEIPJyxUbi3kNHvDLnbRMP8TauzC1Hnt9u87ilA&oe=68911229',
+            video_url: 'https://youtu.be/iqoDoq9wHds?si=5NpkCdT66_Hpq3I4',
           },
         ];
 

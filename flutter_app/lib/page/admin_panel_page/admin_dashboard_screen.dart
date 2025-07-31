@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../services/user_stats_service.dart';
+import '../../services/content_stats_service.dart';  // <-- Add this import
 import '../../services/article_service.dart';
 import '../../models/article.dart';
 import 'all_users_screen.dart';
 import '../register_page.dart';
 import 'EditArticleScreen.dart';
+
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -14,11 +16,13 @@ class AdminDashboardScreen extends StatefulWidget {
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   late Future<int> _userCountFuture;
+  late Future<Map<String, int>> _contentCountsFuture; // <-- Add this
 
   @override
   void initState() {
     super.initState();
     _userCountFuture = UserStatsService.fetchUserCount();
+    _contentCountsFuture = ContentStatsService.fetchContentCounts(); // <-- Add this
   }
 
   @override
@@ -68,6 +72,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       );
                     },
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // New FutureBuilder for content counts
+                  FutureBuilder<Map<String, int>>(
+                    future: _contentCountsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        final counts = snapshot.data!;
+                        return Column(
+                          children: [
+                            DashboardCard(
+                              icon: Icons.article,
+                              title: 'Total Articles',
+                              value: counts['articleCount'].toString(),
+                              color: Colors.teal,
+                            ),
+                            DashboardCard(
+                              icon: Icons.video_library,
+                              title: 'Total Video Articles',
+                              value: counts['videoArticleCount'].toString(),
+                              color: Colors.orange,
+                            ),
+                            DashboardCard(
+                              icon: Icons.trending_up,
+                              title: 'Total Trending Articles',
+                              value: counts['trendingArticleCount'].toString(),
+                              color: Colors.redAccent,
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+
                   const SizedBox(height: 24),
                   const Text(
                     'All Articles',
@@ -161,12 +204,6 @@ class _ArticleListState extends State<ArticleList> {
     }
   }
 
-  // void _updateArticle(Article article) {
-  //   // Navigate to update article screen (implement this page yourself)
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Update feature not implemented for: ${article.title}')),
-  //   );
-  // }
   void _updateArticle(Article article) async {
     final updated = await Navigator.push(
       context,
@@ -184,6 +221,7 @@ class _ArticleListState extends State<ArticleList> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Article>>(

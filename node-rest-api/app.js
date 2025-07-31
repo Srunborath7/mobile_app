@@ -32,6 +32,7 @@ const videoArticlesRoutes = require('./api/routes/video_article_Route');
 const trendingArticlesRoutes = require('./api/routes/trending_article_Route');
 require('./api/models/categoryModel'); 
 const categories= require('./api/routes/categoryRoute');
+const countRoutes = require('./api/routes/countRoute');
 
 async function setupDatabase() {
   // 🧱 Setup users and roles
@@ -72,6 +73,11 @@ async function createApp() {
   app.use('/api/videos', videoArticlesRoutes);
   app.use('/api/trending', trendingArticlesRoutes);
   app.use('/api/categories', categories);
+  app.use('/api/count', countRoutes); 
+
+
+
+
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   return app;

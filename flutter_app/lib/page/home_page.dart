@@ -95,7 +95,6 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   style: TextStyle(fontSize: 14),
                   onSubmitted: (value) {
-                    // TODO: Implement search logic here
                     print('Search for: $value');
                   },
                 ),
@@ -171,35 +170,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
     return name.trim().split(' ').first[0].toUpperCase();
   }
   Future<void> _saveNotificationPreference(bool enabled) async {
-    ///setState(() {
-      ///notificationsEnabled = !notificationsEnabled;
-    ///});
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notificationsEnabled', enabled);
-
-
-    /*
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Notifications'),
-        content: Text(
-          notificationsEnabled
-              ? 'Notifications have been turned ON!'
-              : 'Notifications have been turned OFF!',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-
-     */
-
-    // TODO: Add actual notification permission and enable/disable logic here
   }
 
   @override
@@ -389,7 +361,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   leading: const Icon(Icons.system_update_alt_outlined, color: Colors.deepPurple),
                   title: const Text('Check for Updates'),
                   onTap: () {
-                    Navigator.of(context).pop(); // Close the drawer
+                    Navigator.of(context).pop();
 
                     // Show update check dialog
                     showDialog(
@@ -425,11 +397,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         ],
                       ),
                     );
-
-
-
-
-                    // In real app, you might call an API here to check version.
                   },
                 ),
 
@@ -550,51 +517,6 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class TechnologyNewsScreen extends StatelessWidget {
-  const TechnologyNewsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Technology News'),
-    );
-  }
-}
-class HealthNewsScreen extends StatelessWidget {
-  const HealthNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Health News'));
-}
-
-class FinanceNewsScreen extends StatelessWidget {
-  const FinanceNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Finance News'));
-}
-
-class InternationalNewsScreen extends StatelessWidget {
-  const InternationalNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('International News'));
-}
-
-class EducationNewsScreen extends StatelessWidget {
-  const EducationNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Education News'));
-}
-
-class EntertainmentNewsScreen extends StatelessWidget {
-  const EntertainmentNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Entertainment News'));
-}
-
-class PoliticalNewsScreen extends StatelessWidget {
-  const PoliticalNewsScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Political News'));
-}
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
@@ -873,7 +795,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// Put this class outside the widget class (e.g., below it or in separate file)
+
 class CustomFabLocation extends FloatingActionButtonLocation {
   final double offsetY;
 

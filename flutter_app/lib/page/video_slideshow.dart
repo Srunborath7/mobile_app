@@ -10,7 +10,7 @@ class SimpleVideoCarousel extends StatefulWidget {
 
 class _SimpleVideoCarouselState extends State<SimpleVideoCarousel> {
   final List<String> videoUrls = [
-    'https://youtu.be/OT4cDorZq68?si=o9R5ynjQWbE5F_0Y',
+    'https://youtu.be/sKJZY1KIhhQ?si=2axhgUxcvr-gtqOn',
     // Add more URLs here
   ];
 
@@ -26,8 +26,8 @@ class _SimpleVideoCarouselState extends State<SimpleVideoCarousel> {
       return YoutubePlayerController(
         initialVideoId: videoId,
         flags: const YoutubePlayerFlags(
-          autoPlay: false,
-          mute: true,
+          autoPlay: true,
+          mute: false,
           loop: true,
         ),
       );

@@ -56,6 +56,18 @@ class ArticleService {
     }
   }
 
+  /// fetch article by category
+  static Future<List<Article>> fetchArticlesByCategory(String category) async {
+    final response = await http.get(Uri.parse('$baseUrl/article/category/$category'));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((json) => Article.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load articles for category $category');
+    }
+  }
+
+
   /// Delete an article by ID
   static Future<void> deleteArticle(int articleId) async {
     final url = Uri.parse('$baseUrl/api/articles/full/$articleId');
