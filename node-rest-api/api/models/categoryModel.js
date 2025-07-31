@@ -33,7 +33,8 @@ function insertDefaultCategories() {
         ('International News'),
         ('Education News'), 
         ('Entertainment News'), 
-        ('Political News')
+        ('Political News'),
+        ('Sport News')
       `;
 
       db.query(sqlInsert, (err2, result2) => {

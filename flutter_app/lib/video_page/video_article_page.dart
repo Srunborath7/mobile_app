@@ -46,19 +46,19 @@ class _VideoArticlePageState extends State<VideoArticlePage> {
         }
       },
       child: Card(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
               child: Image.network(
                 _buildFullUrl(video.thumbnailUrl),
                 width: double.infinity,
                 height: 180,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) =>
                 const Icon(Icons.broken_image, size: 80),
               ),
@@ -69,7 +69,7 @@ class _VideoArticlePageState extends State<VideoArticlePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(video.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 15),
                   Text(video.description),
                 ],
               ),

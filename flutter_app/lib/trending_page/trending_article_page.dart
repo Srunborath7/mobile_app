@@ -75,7 +75,7 @@ class _TrendingArticlePageState extends State<TrendingArticlePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trending Articlesfjsfljaskfaskfja')),
+      appBar: AppBar(title: const Text('Trending Articles')),
       body: FutureBuilder<List<TrendingArticle>>(
         future: _futureTrending,
         builder: (context, snapshot) {
